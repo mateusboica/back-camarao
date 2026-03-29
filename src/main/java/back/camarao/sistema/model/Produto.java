@@ -49,14 +49,6 @@ public class Produto {
 
     @Field("tags")
     private List<String> tags;
-
-    @Field("nota_media")
-    @Builder.Default
-    private Double notaMedia = 0.0;
-
-    @Field("total_avaliacoes")
-    @Builder.Default
-    private Integer totalAvaliacoes = 0;
     
     @CreatedDate
     @Field("created_at")
