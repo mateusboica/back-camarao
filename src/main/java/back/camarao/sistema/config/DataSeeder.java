@@ -36,7 +36,6 @@ public class DataSeeder {
                     .img("https://lh3.googleusercontent.com/aida-public/AB6AXuCgGjwrdXqubYerEPjH44JEqy8fWcDb2nmQ77CyXk67WR71ak6L5Sr-08zjTMsd6rXghQbPieBWeLw8oKnq3MOYjKgvCyXzGWRgnYEgjsVjSthLlUEbwt0ozPy3KSaHWffu-6G7_FF4BHBu5draimJzNkIm95HLw98UjKU6IAvWvG_33iM5VXsh_AOTKu_cll2mNZ7tN4r6z_h17L1U7eYOE9fna6T6-lwT97cQd8f7aMLAUqtMxOj-Z3iNrVho1UJtEsZ7-0QE9p8")
                     .categoria(Categoria.MOQUECAS)
                     .tags(List.of("frutos_do_mar", "coco", "dendê"))
-                    .notaMedia(4.8)
                     .build(),
                 Produto.builder()
                     .nome("Moqueca de Peixe")
@@ -46,7 +45,6 @@ public class DataSeeder {
                     .img("https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=800")
                     .categoria(Categoria.MOQUECAS)
                     .tags(List.of("frutos_do_mar", "coco"))
-                    .notaMedia(4.6)
                     .build(),
                 Produto.builder()
                     .nome("Casquinha de Siri")
@@ -56,7 +54,6 @@ public class DataSeeder {
                     .img("https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800")
                     .categoria(Categoria.ENTRADAS)
                     .tags(List.of("frutos_do_mar", "gratinado"))
-                    .notaMedia(4.9)
                     .build(),
                 Produto.builder()
                     .nome("Farofa de Dendê")
@@ -66,7 +63,6 @@ public class DataSeeder {
                     .img("https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800")
                     .categoria(Categoria.ACOMPANHAMENTOS)
                     .tags(List.of("vegano", "dendê"))
-                    .notaMedia(4.5)
                     .build(),
                 Produto.builder()
                     .nome("Água de Coco Natural")
@@ -76,7 +72,6 @@ public class DataSeeder {
                     .img("https://images.unsplash.com/photo-1548369937-47519962c11a?w=800")
                     .categoria(Categoria.BEBIDAS)
                     .tags(List.of("vegano", "sem_gluten", "natural"))
-                    .notaMedia(5.0)
                     .build(),
                 Produto.builder()
                     .nome("Pudim de Leite Condensado")
@@ -86,7 +81,6 @@ public class DataSeeder {
                     .img("https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800")
                     .categoria(Categoria.SOBREMESAS)
                     .tags(List.of("sobremesa", "classico"))
-                    .notaMedia(4.7)
                     .build()
             );
 

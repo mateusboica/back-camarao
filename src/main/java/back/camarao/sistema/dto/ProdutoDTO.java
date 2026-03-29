@@ -53,8 +53,6 @@ public final class ProdutoDTO {
         String img,
         Categoria categoria,
         List<String> tags,
-        Double notaMedia,
-        Integer totalAvaliacoes,
         Instant createdAt,
         Instant updatedAt
     ) {
@@ -69,8 +67,6 @@ public final class ProdutoDTO {
                 p.getImg(),
                 p.getCategoria(),
                 p.getTags(),
-                p.getNotaMedia(),
-                p.getTotalAvaliacoes(),
                 p.getCreatedAt(),
                 p.getUpdatedAt()
             );

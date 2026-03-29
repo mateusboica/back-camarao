@@ -93,8 +93,6 @@ public class ProdutoService {
                 .img(dto.img())
                 .categoria(dto.categoria())
                 .tags(dto.tags())
-                .notaMedia(0.0)
-                .totalAvaliacoes(0)
                 .build();
 
         Produto salvo = produtoRepository.save(produto);
