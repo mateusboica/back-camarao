@@ -2,6 +2,7 @@ package back.camarao.sistema.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -50,6 +51,14 @@ public class GlobalExceptionHandler {
                 "Erro de validação nos campos enviados");
         pd.setType(URI.create("/errors/validation"));
         pd.setProperty("campos", campos);
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email ou senha invalidos");
+        pd.setType(URI.create("/errors/unauthorized"));
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
