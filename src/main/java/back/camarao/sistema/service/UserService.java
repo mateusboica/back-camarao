@@ -2,10 +2,12 @@ package back.camarao.sistema.service;
 
 import back.camarao.sistema.dto.AuthDTO;
 import back.camarao.sistema.dto.UserDTO;
+import back.camarao.sistema.enums.Roles;
 import back.camarao.sistema.exception.ResourceAlreadyExistsException;
 import back.camarao.sistema.exception.ResourceNotFoundException;
 import back.camarao.sistema.model.User;
 import back.camarao.sistema.repository.UserRepository;
+import back.camarao.sistema.security.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,11 +25,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
 
     public UserDTO.Response cadastrar(UserDTO.CreateRequest dto) {
         String nome = dto.nome().trim();
         String email = dto.email().trim().toLowerCase();
-        String acesso = normalizarAcesso(dto.acesso());
+        Roles acesso = definirAcessoCadastro(dto.acesso());
 
         if (userRepository.existsByNomeIgnoreCase(nome)) {
             throw new ResourceAlreadyExistsException(
@@ -43,7 +46,7 @@ public class UserService {
                 .nome(nome)
                 .email(email)
                 .senha(passwordEncoder.encode(dto.senha()))
-                .acesso(acesso)
+                .acesso(acesso.name())
                 .build();
 
         User salvo = userRepository.save(user);
@@ -60,7 +63,8 @@ public class UserService {
         User user = userRepository.findByEmailIgnoreCase(authentication.getName())
                 .orElseThrow(() -> new BadCredentialsException("Email ou senha invalidos"));
 
-        return AuthDTO.LoginResponse.from(user);
+        String token = tokenService.generateToken(user);
+        return AuthDTO.LoginResponse.from(user, token);
     }
 
     public UserDTO.Response buscarPorEmail(String email) {
@@ -69,11 +73,26 @@ public class UserService {
         return UserDTO.Response.from(user);
     }
 
-    private String normalizarAcesso(String acesso) {
+    private Roles definirAcessoCadastro(String acesso) {
+        Roles acessoSolicitado = parseRole(acesso);
+
+        if (userRepository.count() == 0) {
+            return acessoSolicitado;
+        }
+
+        return Roles.USER;
+    }
+
+    private Roles parseRole(String acesso) {
         String acessoNormalizado = acesso.trim().toUpperCase();
         if (acessoNormalizado.startsWith("ROLE_")) {
-            return acessoNormalizado.substring(5);
+            acessoNormalizado = acessoNormalizado.substring(5);
         }
-        return acessoNormalizado;
+
+        try {
+            return Roles.valueOf(acessoNormalizado);
+        } catch (IllegalArgumentException ex) {
+            throw new BadCredentialsException("Nivel de acesso invalido");
+        }
     }
 }
