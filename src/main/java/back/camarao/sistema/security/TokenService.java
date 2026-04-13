@@ -22,8 +22,8 @@ public class TokenService {
     private SecretKey secretKey;
 
     public TokenService(
-            @Value("${app.security.jwt.secret}") String jwtSecret,
-            @Value("${app.security.jwt.expiration-ms}") long expirationMs) {
+            @Value("${app.security.jwt.secret:${JWT_SECRET:troque-esta-chave-em-producao-com-no-minimo-32-caracteres}}") String jwtSecret,
+            @Value("${app.security.jwt.expiration-ms:${JWT_EXPIRATION_MS:86400000}}") long expirationMs) {
         this.jwtSecret = jwtSecret;
         this.expirationMs = expirationMs;
     }
