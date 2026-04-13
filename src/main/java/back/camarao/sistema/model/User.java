@@ -26,7 +26,6 @@ public class User {
     @Id
     private String id;
 
-    @Indexed(unique = true)
     @Field("nome")
     private String nome;
 

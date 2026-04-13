@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -41,6 +42,7 @@ public class ProdutoController {
     // ── GET /api/v1/produtos ──────────────────────────────────────────────────
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @Operation(summary = "Lista todos os produtos", description = "Retorna todos os produtos com paginação. " +
             "Use ?disponivel=true para filtrar apenas os disponíveis.")
     public ResponseEntity<Page<ProdutoDTO.Response>> listar(
@@ -54,6 +56,7 @@ public class ProdutoController {
 
     // ── GET /api/v1/produtos/{id} ─────────────────────────────────────────────
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/{id}")
     @Operation(summary = "Busca produto por ID")
     @ApiResponse(responseCode = "200", description = "Produto encontrado")
@@ -64,6 +67,7 @@ public class ProdutoController {
 
     // ── GET /api/v1/produtos/{slug}
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/slug/{slug}/")
     public ResponseEntity<ProdutoDTO.Response> buscarPorSlug(@PathVariable String slug) {
         return ResponseEntity.ok(produtoService.buscarPorSlug(slug));
@@ -71,6 +75,7 @@ public class ProdutoController {
 
     // ── GET /api/v1/produtos/categoria/{categoria} ────────────────────────────
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/categoria/{categoria}")
     @Operation(summary = "Lista produtos por categoria")
     public ResponseEntity<Page<ProdutoDTO.Response>> listarPorCategoria(
@@ -83,6 +88,7 @@ public class ProdutoController {
 
     // ── GET /api/v1/produtos/busca?termo= ────────────────────────────────────
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/busca")
     @Operation(summary = "Busca produtos por nome")
     public ResponseEntity<List<ProdutoDTO.Response>> buscarPorNome(
@@ -90,6 +96,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.buscarPorNome(termo));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     // ── GET /api/v1/produtos/tag/{tag} ────────────────────────────────────────
 
     @GetMapping("/tag/{tag}")
@@ -99,7 +106,7 @@ public class ProdutoController {
     }
 
     // ── POST /api/v1/produtos ─────────────────────────────────────────────────
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @Operation(summary = "Cadastra um novo produto")
     @ApiResponse(responseCode = "201", description = "Produto criado com sucesso")
@@ -115,7 +122,7 @@ public class ProdutoController {
     }
 
     // ── PUT /api/v1/produtos/{id} ─────────────────────────────────────────────
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza um produto completo (substituição total)")
     public ResponseEntity<ProdutoDTO.Response> atualizar(
@@ -125,7 +132,7 @@ public class ProdutoController {
     }
 
     // ── PATCH /api/v1/produtos/{id}/disponibilidade ───────────────────────────
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/disponibilidade")
     @Operation(summary = "Altera apenas a disponibilidade do produto (liga/desliga no cardápio)")
     public ResponseEntity<ProdutoDTO.Response> alterarDisponibilidade(
@@ -135,7 +142,7 @@ public class ProdutoController {
     }
 
     // ── DELETE /api/v1/produtos/{id} ──────────────────────────────────────────
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @Operation(summary = "Remove um produto do cardápio")
     @ApiResponse(responseCode = "204", description = "Produto removido")

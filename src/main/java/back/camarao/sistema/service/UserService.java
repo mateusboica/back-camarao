@@ -74,25 +74,7 @@ public class UserService {
     }
 
     private Roles definirAcessoCadastro(String acesso) {
-        Roles acessoSolicitado = parseRole(acesso);
-
-        if (userRepository.count() == 0) {
-            return acessoSolicitado;
-        }
-
         return Roles.USER;
     }
 
-    private Roles parseRole(String acesso) {
-        String acessoNormalizado = acesso.trim().toUpperCase();
-        if (acessoNormalizado.startsWith("ROLE_")) {
-            acessoNormalizado = acessoNormalizado.substring(5);
-        }
-
-        try {
-            return Roles.valueOf(acessoNormalizado);
-        } catch (IllegalArgumentException ex) {
-            throw new BadCredentialsException("Nivel de acesso invalido");
-        }
-    }
 }
