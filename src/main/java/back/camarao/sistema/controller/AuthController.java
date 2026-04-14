@@ -7,6 +7,8 @@ import back.camarao.sistema.dto.UserDTO;
 import back.camarao.sistema.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +36,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthDTO.LoginResponse> login(@Valid @RequestBody AuthDTO.LoginRequest dto) {
-        return ResponseEntity.ok(userService.login(dto));
+        ResponseCookie cookie = ResponseCookie.from("token", userService.login(dto).token())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60) // 7 dias
+                .sameSite("Strict")
+                .build();        
+        return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).body(userService.login(dto));
     }
 
     @GetMapping("/me")
