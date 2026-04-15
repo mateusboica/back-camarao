@@ -30,7 +30,7 @@ public class UserService {
     public UserDTO.Response cadastrar(UserDTO.CreateRequest dto) {
         String nome = dto.nome().trim();
         String email = dto.email().trim().toLowerCase();
-        Roles acesso = definirAcessoCadastro(dto.acesso());
+        Roles acesso = definirAcessoCadastro();
 
         if (userRepository.existsByNomeIgnoreCase(nome)) {
             throw new ResourceAlreadyExistsException(
@@ -73,7 +73,7 @@ public class UserService {
         return UserDTO.Response.from(user);
     }
 
-    private Roles definirAcessoCadastro(String acesso) {
+    private Roles definirAcessoCadastro() {
         return Roles.USER;
     }
 
