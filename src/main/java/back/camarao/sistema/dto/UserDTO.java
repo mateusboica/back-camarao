@@ -22,10 +22,7 @@ public final class UserDTO {
 
             @NotBlank(message = "A senha e obrigatoria")
             @Size(min = 6, max = 120, message = "Senha deve ter entre 6 e 120 caracteres")
-            String senha,
-
-            @NotBlank(message = "O nivel de acesso e obrigatorio")
-            String acesso) {
+            String senha,) {
     }
 
     public record Response(
