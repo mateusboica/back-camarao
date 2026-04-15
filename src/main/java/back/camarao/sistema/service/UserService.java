@@ -64,7 +64,7 @@ public class UserService {
                 .orElseThrow(() -> new BadCredentialsException("Email ou senha invalidos"));
 
         String token = tokenService.generateToken(user);
-        return AuthDTO.LoginResponse.from(user, token);
+        return AuthDTO.LoginResponse.from(user);
     }
 
     public UserDTO.Response buscarPorEmail(String email) {

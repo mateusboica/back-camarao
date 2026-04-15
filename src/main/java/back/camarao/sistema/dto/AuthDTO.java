@@ -22,16 +22,14 @@ public final class AuthDTO {
             String nome,
             String email,
             String acesso,
-            String token,
             String tipo,
             String mensagem) {
-        public static LoginResponse from(User user, String token) {
+        public static LoginResponse from(User user) {
             return new LoginResponse(
                     user.getId(),
                     user.getNome(),
                     user.getEmail(),
                     user.getAcesso(),
-                    token,
                     "Bearer",
                     "Login realizado com sucesso");
         }
