@@ -36,15 +36,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthDTO.LoginResponse> login(@Valid @RequestBody AuthDTO.LoginRequest dto) {
-        AuthDTO.LoginResponse response = userService.login(dto);
-        ResponseCookie cookie = ResponseCookie.from("token", response.token())
+        UserService.LoginResult result = userService.login(dto);
+        ResponseCookie cookie = ResponseCookie.from("token", result.token())
                 .httpOnly(true)
-                .secure(false) // false para desenvolvimento local (HTTP)
+                .secure(false)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 dias
-                .sameSite("Lax") // Lax permite requests de terceiros
+                .sameSite("Lax")
                 .build();
-        return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).body(response);
+        return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).body(result.response());
     }
 
     @GetMapping("/me")

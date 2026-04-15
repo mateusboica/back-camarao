@@ -54,7 +54,7 @@ public class UserService {
         return UserDTO.Response.from(salvo);
     }
 
-    public AuthDTO.LoginResponse login(AuthDTO.LoginRequest dto) {
+    public LoginResult login(AuthDTO.LoginRequest dto) {
         Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(
                         dto.email().trim().toLowerCase(),
@@ -64,8 +64,12 @@ public class UserService {
                 .orElseThrow(() -> new BadCredentialsException("Email ou senha invalidos"));
 
         String token = tokenService.generateToken(user);
-        return AuthDTO.LoginResponse.from(user);
+        AuthDTO.LoginResponse response = AuthDTO.LoginResponse.from(user);
+
+        return new LoginResult(response, token);
     }
+
+    public record LoginResult(AuthDTO.LoginResponse response, String token) {}
 
     public UserDTO.Response buscarPorEmail(String email) {
         User user = userRepository.findByEmailIgnoreCase(email)
