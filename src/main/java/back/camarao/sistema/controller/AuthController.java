@@ -39,10 +39,10 @@ public class AuthController {
         UserService.LoginResult result = userService.login(dto);
         ResponseCookie cookie = ResponseCookie.from("token", result.token())
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 dias
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).body(result.response());
     }
