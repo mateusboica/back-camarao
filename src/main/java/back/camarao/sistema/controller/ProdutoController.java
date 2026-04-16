@@ -31,7 +31,7 @@ import java.util.List;
  * Base path: {@code /api/v1/produtos}
  */
 @RestController
-@RequestMapping("/api/v1/produtos")
+@RequestMapping({"/api/v1/produtos", "/v1/produtos"})
 @RequiredArgsConstructor
 @Tag(name = "Produtos", description = "Gerenciamento do cardápio – Maré Artisanal")
 public class ProdutoController {

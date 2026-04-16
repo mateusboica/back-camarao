@@ -29,24 +29,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // 1. Procurar o token dentro dos Cookies
         String token = null;
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if ("token".equals(cookie.getName())) { // O mesmo nome usado no ResponseCookie
+                if ("token".equals(cookie.getName())) { 
                     token = cookie.getValue();
                     break;
                 }
             }
         }
 
-        // Se o cookie não existir, deixa a requisição continuar (se a rota for protegida, o Spring barra depois)
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. Valida o token (Sua lógica original intocada)
         if (!tokenService.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;

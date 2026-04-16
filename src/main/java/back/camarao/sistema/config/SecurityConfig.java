@@ -49,11 +49,11 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/produtos/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/produtos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/produtos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/produtos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/produtos/**", "/v1/produtos/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/produtos/**", "/v1/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/produtos/**", "/v1/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/produtos/**", "/v1/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/produtos/**", "/v1/produtos/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

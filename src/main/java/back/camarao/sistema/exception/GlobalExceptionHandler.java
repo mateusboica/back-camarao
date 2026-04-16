@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -16,8 +17,6 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ── Recurso não encontrado ────────────────────────────────────────────────
-
     @ExceptionHandler(ResourceNotFoundException.class)
     public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -25,8 +24,6 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
-
-    // ── Recurso já existe ─────────────────────────────────────────────────────
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ProblemDetail handleConflict(ResourceAlreadyExistsException ex) {
@@ -36,19 +33,17 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    // ── Erros de validação (@Valid) ───────────────────────────────────────────
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> campos = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "inválido",
+                        fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "invalido",
                         (a, b) -> a
                 ));
 
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY,
-                "Erro de validação nos campos enviados");
+                "Erro de validacao nos campos enviados");
         pd.setType(URI.create("/errors/validation"));
         pd.setProperty("campos", campos);
         pd.setProperty("timestamp", Instant.now());
@@ -63,7 +58,14 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    // ── Fallback ──────────────────────────────────────────────────────────────
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ProblemDetail handleNoResourceFound(NoResourceFoundException ex) {
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
+                "Rota nao encontrada: " + ex.getResourcePath());
+        pd.setType(URI.create("/errors/not-found"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(Exception ex) {
