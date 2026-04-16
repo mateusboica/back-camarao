@@ -2,6 +2,7 @@ package back.camarao.sistema.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,15 +29,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        // 1. Procurar o token dentro dos Cookies
+        String token = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("token".equals(cookie.getName())) { // O mesmo nome usado no ResponseCookie
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Se o cookie não existir, deixa a requisição continuar (se a rota for protegida, o Spring barra depois)
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-
+        // 2. Valida o token (Sua lógica original intocada)
         if (!tokenService.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
