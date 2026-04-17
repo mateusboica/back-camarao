@@ -51,4 +51,21 @@ public class AuthController {
     public ResponseEntity<UserDTO.Response> me(@AuthenticationPrincipal(expression = "username") String email) {
         return ResponseEntity.ok(userService.buscarPorEmail(email));
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        ResponseCookie cookie = ResponseCookie.from("token", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0) 
+                .sameSite("None")
+                .build();
+        return ResponseEntity.noContent().header("Set-Cookie", cookie.toString()).build();
+    }
+
+    @GetMapping("/me-nome")
+    public ResponseEntity<String> meNome(@AuthenticationPrincipal(expression = "username") String nome) {
+        return ResponseEntity.ok(userService.buscarPorNome(nome).nome());
+    }
 }

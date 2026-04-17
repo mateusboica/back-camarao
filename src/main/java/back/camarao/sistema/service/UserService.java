@@ -77,6 +77,12 @@ public class UserService {
         return UserDTO.Response.from(user);
     }
 
+    public UserDTO.Response buscarPorNome(String nome) {
+        User user = userRepository.findByNomeIgnoreCase(nome)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", nome));
+        return UserDTO.Response.from(user);
+    }
+
     private Roles definirAcessoCadastro() {
         return Roles.USER;
     }
