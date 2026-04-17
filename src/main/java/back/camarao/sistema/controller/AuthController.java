@@ -65,7 +65,7 @@ public class AuthController {
     }
 
     @GetMapping("/me-nome")
-    public ResponseEntity<String> meNome(@AuthenticationPrincipal(expression = "username") String nome) {
-        return ResponseEntity.ok(userService.buscarPorNome(nome).nome());
+    public ResponseEntity<String> meNome(@AuthenticationPrincipal(expression = "username") String email) {
+        return ResponseEntity.ok(userService.buscarPorEmail(email).nome());
     }
-}
+    }
