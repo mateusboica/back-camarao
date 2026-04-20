@@ -14,18 +14,16 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping({"/api/v1/auth/register", "/register"})
     public ResponseEntity<UserDTO.Response> register(@Valid @RequestBody UserDTO.CreateRequest dto) {
         UserDTO.Response criado = userService.cadastrar(dto);
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -34,7 +32,7 @@ public class AuthController {
         return ResponseEntity.created(location).body(criado);
     }
 
-    @PostMapping("/login")
+    @PostMapping({"/api/v1/auth/login", "/login"})
     public ResponseEntity<AuthDTO.LoginResponse> login(@Valid @RequestBody AuthDTO.LoginRequest dto) {
         UserService.LoginResult result = userService.login(dto);
         ResponseCookie cookie = ResponseCookie.from("token", result.token())
@@ -47,12 +45,12 @@ public class AuthController {
         return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).body(result.response());
     }
 
-    @GetMapping("/me")
+    @GetMapping({"/api/v1/auth/me", "/me"})
     public ResponseEntity<UserDTO.Response> me(@AuthenticationPrincipal(expression = "username") String email) {
         return ResponseEntity.ok(userService.buscarPorEmail(email));
     }
 
-    @GetMapping("/logout")
+    @GetMapping({"/api/v1/auth/logout", "/logout"})
     public ResponseEntity<Void> logout() {
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
@@ -64,8 +62,8 @@ public class AuthController {
         return ResponseEntity.noContent().header("Set-Cookie", cookie.toString()).build();
     }
 
-    @GetMapping("/me-nome")
+    @GetMapping({"/api/v1/auth/me-nome", "/me-nome"})
     public ResponseEntity<String> meNome(@AuthenticationPrincipal(expression = "username") String email) {
         return ResponseEntity.ok(userService.buscarPorEmail(email).nome());
     }
-    }
+}
