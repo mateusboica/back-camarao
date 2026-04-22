@@ -55,26 +55,79 @@ public class UserService {
     }
 
     public LoginResult login(AuthDTO.LoginRequest dto) {
+        String email = dto.email().trim().toLowerCase();
+
         Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(
-                        dto.email().trim().toLowerCase(),
+                        email,
                         dto.senha()));
 
         User user = userRepository.findByEmailIgnoreCase(authentication.getName())
                 .orElseThrow(() -> new BadCredentialsException("Email ou senha invalidos"));
 
         String token = tokenService.generateToken(user);
-        AuthDTO.LoginResponse response = AuthDTO.LoginResponse.from(user);
+        AuthDTO.LoginResponse response = AuthDTO.LoginResponse.from(user, token);
 
         return new LoginResult(response, token);
     }
 
     public record LoginResult(AuthDTO.LoginResponse response, String token) {}
 
+    public LoginResult atualizarPerfil(String emailAtual, UserDTO.UpdateProfileRequest dto) {
+        User user = buscarUsuarioPorEmail(emailAtual);
+        String novoNome = dto.nome().trim();
+        String novoEmail = dto.email().trim().toLowerCase();
+
+        validarNomeDisponivelParaUsuario(novoNome, user.getId());
+        validarEmailDisponivelParaUsuario(novoEmail, user.getId());
+
+        user.setNome(novoNome);
+        user.setEmail(novoEmail);
+
+        User salvo = userRepository.save(user);
+        String token = tokenService.generateToken(salvo);
+        AuthDTO.LoginResponse response = AuthDTO.LoginResponse.from(salvo, token);
+
+        return new LoginResult(response, token);
+    }
+
+    public void alterarSenha(String emailAtual, UserDTO.UpdatePasswordRequest dto) {
+        User user = buscarUsuarioPorEmail(emailAtual);
+
+        if (!passwordEncoder.matches(dto.senhaAtual(), user.getSenha())) {
+            throw new BadCredentialsException("Senha atual invalida");
+        }
+
+        user.setSenha(passwordEncoder.encode(dto.novaSenha()));
+        userRepository.save(user);
+    }
+
     public UserDTO.Response buscarPorEmail(String email) {
-        User user = userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario", email));
+        User user = buscarUsuarioPorEmail(email);
         return UserDTO.Response.from(user);
+    }
+
+    private User buscarUsuarioPorEmail(String email) {
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", email));
+    }
+
+    private void validarNomeDisponivelParaUsuario(String nome, String userId) {
+        userRepository.findByNomeIgnoreCase(nome)
+                .filter(user -> !user.getId().equals(userId))
+                .ifPresent(user -> {
+                    throw new ResourceAlreadyExistsException(
+                            "Ja existe um usuario com o nome '%s'".formatted(nome));
+                });
+    }
+
+    private void validarEmailDisponivelParaUsuario(String email, String userId) {
+        userRepository.findByEmailIgnoreCase(email)
+                .filter(user -> !user.getId().equals(userId))
+                .ifPresent(user -> {
+                    throw new ResourceAlreadyExistsException(
+                            "Ja existe um usuario com o email '%s'".formatted(email));
+                });
     }
     
     private Roles definirAcessoCadastro() {

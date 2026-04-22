@@ -12,6 +12,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,19 +36,32 @@ public class AuthController {
     @PostMapping({"/api/v1/auth/login", "/login"})
     public ResponseEntity<AuthDTO.LoginResponse> login(@Valid @RequestBody AuthDTO.LoginRequest dto) {
         UserService.LoginResult result = userService.login(dto);
-        ResponseCookie cookie = ResponseCookie.from("token", result.token())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 7 dias
-                .sameSite("None")
-                .build();
-        return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).body(result.response());
+        return ResponseEntity.ok()
+                .header("Set-Cookie", buildAuthCookie(result.token()).toString())
+                .body(result.response());
     }
 
     @GetMapping({"/api/v1/auth/me", "/me"})
     public ResponseEntity<UserDTO.Response> me(@AuthenticationPrincipal(expression = "username") String email) {
         return ResponseEntity.ok(userService.buscarPorEmail(email));
+    }
+
+    @PatchMapping({"/api/v1/auth/me", "/me"})
+    public ResponseEntity<AuthDTO.LoginResponse> atualizarPerfil(
+            @AuthenticationPrincipal(expression = "username") String email,
+            @Valid @RequestBody UserDTO.UpdateProfileRequest dto) {
+        UserService.LoginResult result = userService.atualizarPerfil(email, dto);
+        return ResponseEntity.ok()
+                .header("Set-Cookie", buildAuthCookie(result.token()).toString())
+                .body(result.response());
+    }
+
+    @PatchMapping({"/api/v1/auth/me/senha", "/me/senha"})
+    public ResponseEntity<Void> alterarSenha(
+            @AuthenticationPrincipal(expression = "username") String email,
+            @Valid @RequestBody UserDTO.UpdatePasswordRequest dto) {
+        userService.alterarSenha(email, dto);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping({"/api/v1/auth/logout", "/logout"})
@@ -65,5 +79,15 @@ public class AuthController {
     @GetMapping({"/api/v1/auth/me-nome", "/me-nome"})
     public ResponseEntity<String> meNome(@AuthenticationPrincipal(expression = "username") String email) {
         return ResponseEntity.ok(userService.buscarPorEmail(email).nome());
+    }
+
+    private ResponseCookie buildAuthCookie(String token) {
+        return ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60) // 7 dias
+                .sameSite("None")
+                .build();
     }
 }
