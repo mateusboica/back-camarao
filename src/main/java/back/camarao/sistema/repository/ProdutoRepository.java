@@ -7,8 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,14 +19,14 @@ public interface ProdutoRepository extends MongoRepository<Produto, String> {
     Page<Produto> findByCategoriaAndIsDisponivelTrue(Categoria categoria, Pageable pageable);
 
     @Query("{ 'nome': { $regex: ?0, $options: 'i' } }")
-    List<Produto> findByNomeContainingIgnoreCase(String termo);
+    Page<Produto> findByNomeContainingIgnoreCase(String termo, Pageable pageable);
 
     boolean existsByNomeIgnoreCase(String nome);
 
     Optional<Produto> findByNomeIgnoreCase(String nome);
 
     @Query("{ 'tags': ?0, 'is_disponivel': true }")
-    List<Produto> findDisponivelByTag(String tag);
+    Page<Produto> findDisponivelByTag(String tag, Pageable pageable);
 
     Optional<Produto> findBySlug(String slug);
 }

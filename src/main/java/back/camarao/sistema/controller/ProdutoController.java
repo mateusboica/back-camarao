@@ -21,9 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.net.URI;
-import java.util.List;
+
 
 /**
  * Endpoints REST para gerenciamento do cardápio.
@@ -91,9 +90,10 @@ public class ProdutoController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/busca")
     @Operation(summary = "Busca produtos por nome")
-    public ResponseEntity<List<ProdutoDTO.Response>> buscarPorNome(
-            @Parameter(description = "Termo de busca") @RequestParam String termo) {
-        return ResponseEntity.ok(produtoService.buscarPorNome(termo));
+    public ResponseEntity<Page<ProdutoDTO.Response>> buscarPorNome(
+            @Parameter(description = "Termo de busca") @RequestParam String termo,
+            @PageableDefault(size = 12) Pageable pageable) {
+        return ResponseEntity.ok(produtoService.buscarPorNome(termo, pageable));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
@@ -101,8 +101,8 @@ public class ProdutoController {
 
     @GetMapping("/tag/{tag}")
     @Operation(summary = "Lista produtos disponíveis por tag (ex: 'vegano', 'sem_gluten')")
-    public ResponseEntity<List<ProdutoDTO.Response>> listarPorTag(@PathVariable String tag) {
-        return ResponseEntity.ok(produtoService.listarPorTag(tag));
+    public ResponseEntity<Page<ProdutoDTO.Response>> listarPorTag(@PathVariable String tag, @PageableDefault(size = 12) Pageable pageable) {
+        return ResponseEntity.ok(produtoService.listarPorTag(tag, pageable));
     }
 
     // ── POST /api/v1/produtos ─────────────────────────────────────────────────

@@ -24,6 +24,7 @@ public class AuthController {
 
     private final UserService userService;
 
+    // POST /api/v1/auth/register e /register
     @PostMapping({"/api/v1/auth/register", "/register"})
     public ResponseEntity<UserDTO.Response> register(@Valid @RequestBody UserDTO.CreateRequest dto) {
         UserDTO.Response criado = userService.cadastrar(dto);
@@ -33,6 +34,7 @@ public class AuthController {
         return ResponseEntity.created(location).body(criado);
     }
 
+    // POST /api/v1/auth/login e /login
     @PostMapping({"/api/v1/auth/login", "/login"})
     public ResponseEntity<AuthDTO.LoginResponse> login(@Valid @RequestBody AuthDTO.LoginRequest dto) {
         UserService.LoginResult result = userService.login(dto);
@@ -41,11 +43,13 @@ public class AuthController {
                 .body(result.response());
     }
 
+    // GET /api/v1/auth/me e /me
     @GetMapping({"/api/v1/auth/me", "/me"})
     public ResponseEntity<UserDTO.Response> me(@AuthenticationPrincipal(expression = "username") String email) {
         return ResponseEntity.ok(userService.buscarPorEmail(email));
     }
 
+    // PATCH /api/v1/auth/me e /me
     @PatchMapping({"/api/v1/auth/me", "/me"})
     public ResponseEntity<AuthDTO.LoginResponse> atualizarPerfil(
             @AuthenticationPrincipal(expression = "username") String email,
@@ -56,6 +60,7 @@ public class AuthController {
                 .body(result.response());
     }
 
+    // PATCH /api/v1/auth/me/senha e /me/senha
     @PatchMapping({"/api/v1/auth/me/senha", "/me/senha"})
     public ResponseEntity<Void> alterarSenha(
             @AuthenticationPrincipal(expression = "username") String email,
@@ -64,6 +69,7 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    // GET /api/v1/auth/logout e /logout
     @GetMapping({"/api/v1/auth/logout", "/logout"})
     public ResponseEntity<Void> logout() {
         ResponseCookie cookie = ResponseCookie.from("token", "")
@@ -76,6 +82,7 @@ public class AuthController {
         return ResponseEntity.noContent().header("Set-Cookie", cookie.toString()).build();
     }
 
+    // GET /api/v1/auth/me-nome e /me-nome (apenas para retornar o nome do usuário autenticado)
     @GetMapping({"/api/v1/auth/me-nome", "/me-nome"})
     public ResponseEntity<String> meNome(@AuthenticationPrincipal(expression = "username") String email) {
         return ResponseEntity.ok(userService.buscarPorEmail(email).nome());

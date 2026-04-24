@@ -12,8 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -40,18 +38,14 @@ public class ProdutoService {
         return page.map(ProdutoDTO.Response::from);
     }
 
-    public List<ProdutoDTO.Response> buscarPorNome(String termo) {
-        return produtoRepository.findByNomeContainingIgnoreCase(termo)
-                .stream()
-                .map(ProdutoDTO.Response::from)
-                .toList();
+    public Page<ProdutoDTO.Response> buscarPorNome(String termo, Pageable pageable) {
+        return produtoRepository.findByNomeContainingIgnoreCase(termo, pageable)
+                .map(ProdutoDTO.Response::from);
     }
 
-    public List<ProdutoDTO.Response> listarPorTag(String tag) {
-        return produtoRepository.findDisponivelByTag(tag)
-                .stream()
-                .map(ProdutoDTO.Response::from)
-                .toList();
+    public Page<ProdutoDTO.Response> listarPorTag(String tag, Pageable pageable) {
+        return produtoRepository.findDisponivelByTag(tag, pageable)
+                .map(ProdutoDTO.Response::from);
     }
 
     public ProdutoDTO.Response buscarPorSlug(String slug) {
@@ -102,8 +96,6 @@ public class ProdutoService {
 
     public ProdutoDTO.Response atualizar(String id, ProdutoDTO.Request dto) {
         Produto existente = encontrarOuLancar(id);
-
-        // Verifica duplicidade de nome apenas se o nome mudou
         boolean nomeMudou = !existente.getNome().equalsIgnoreCase(dto.nome().trim());
         if (nomeMudou && produtoRepository.existsByNomeIgnoreCase(dto.nome())) {
             throw new ResourceAlreadyExistsException(
