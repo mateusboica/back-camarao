@@ -41,7 +41,6 @@ public class ProdutoController {
     // ── GET /api/v1/produtos ──────────────────────────────────────────────────
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @Operation(summary = "Lista todos os produtos", description = "Retorna todos os produtos com paginação. " +
             "Use ?disponivel=true para filtrar apenas os disponíveis.")
     public ResponseEntity<Page<ProdutoDTO.Response>> listar(
@@ -55,7 +54,6 @@ public class ProdutoController {
 
     // ── GET /api/v1/produtos/{id} ─────────────────────────────────────────────
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/{id}")
     @Operation(summary = "Busca produto por ID")
     @ApiResponse(responseCode = "200", description = "Produto encontrado")
@@ -66,7 +64,6 @@ public class ProdutoController {
 
     // ── GET /api/v1/produtos/{slug}
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/slug/{slug}/")
     public ResponseEntity<ProdutoDTO.Response> buscarPorSlug(@PathVariable String slug) {
         return ResponseEntity.ok(produtoService.buscarPorSlug(slug));
@@ -74,7 +71,6 @@ public class ProdutoController {
 
     // ── GET /api/v1/produtos/categoria/{categoria} ────────────────────────────
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/categoria/{categoria}")
     @Operation(summary = "Lista produtos por categoria")
     public ResponseEntity<Page<ProdutoDTO.Response>> listarPorCategoria(
@@ -87,7 +83,6 @@ public class ProdutoController {
 
     // ── GET /api/v1/produtos/busca?termo= ────────────────────────────────────
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/busca")
     @Operation(summary = "Busca produtos por nome")
     public ResponseEntity<Page<ProdutoDTO.Response>> buscarPorNome(
@@ -96,7 +91,6 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.buscarPorNome(termo, pageable));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     // ── GET /api/v1/produtos/tag/{tag} ────────────────────────────────────────
 
     @GetMapping("/tag/{tag}")
