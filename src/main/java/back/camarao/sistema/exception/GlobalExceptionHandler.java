@@ -2,7 +2,9 @@ package back.camarao.sistema.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -54,6 +56,14 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email ou senha invalidos");
         pd.setType(URI.create("/errors/unauthorized"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
+    public ProblemDetail handleAccessDenied(Exception ex) {
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Acesso negado");
+        pd.setType(URI.create("/errors/forbidden"));
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
