@@ -20,7 +20,7 @@ public class ApiConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
-            @Value("${app.cors.allowed-origin-patterns:http://localhost:5173,http://127.0.0.1:5173}") String allowedOriginPatterns) {
+            @Value("${app.cors.allowed-origin-patterns:http://localhost:5173,http://127.0.0.1:5173,https://cadastro-produto-vvod.onrender.com}") String allowedOriginPatterns) {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(
                 Arrays.stream(allowedOriginPatterns.split(","))
