@@ -62,6 +62,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/produtos/**", "/v1/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/produtos/**", "/v1/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/produtos/**", "/v1/produtos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
