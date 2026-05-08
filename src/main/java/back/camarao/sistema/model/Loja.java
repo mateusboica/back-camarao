@@ -11,6 +11,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import java.util.List;
+import back.camarao.sistema.features.HorarioFuncionamento;
 
 import java.time.Instant;
 
@@ -51,7 +53,7 @@ public class Loja {
     private String taxaEntrega;
 
     @Field("horario_funcionamento")
-    private String horarioFuncionamento;
+    private List<HorarioFuncionamento> horarioFuncionamento;
 
     @CreatedDate
     @Field("created_at")
