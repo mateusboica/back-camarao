@@ -1,11 +1,19 @@
 package back.camarao.sistema.dto;
 
+import back.camarao.sistema.features.HorarioFuncionamento;
 import back.camarao.sistema.model.Loja;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 public final class LojaDTO {
 
@@ -22,25 +30,33 @@ public final class LojaDTO {
             String descricao,
 
             @NotBlank(message = "O endereco e obrigatorio")
+            @Size(max = 300, message = "Endereco deve ter no maximo 300 caracteres")
             String endereco,
 
             @NotBlank(message = "O telefone e obrigatorio")
+            @Pattern(regexp = "^\\+?[0-9 ()-]{10,20}$", message = "Telefone deve conter entre 10 e 20 caracteres validos")
             String telefone,
 
             @NotNull(message = "Informe se a loja esta aberta")
             Boolean aberto,
 
             @NotBlank(message = "A URL do logo e obrigatoria")
+            @Pattern(regexp = "^(https?://).+", message = "Logo deve ser uma URL http ou https")
             String logoUrl,
 
-            @NotBlank(message = "A taxa de servico e obrigatoria")
-            String taxaServico,
+            @NotNull(message = "A taxa de servico e obrigatoria")
+            @DecimalMin(value = "0.00", message = "Taxa de servico nao pode ser negativa")
+            @Digits(integer = 8, fraction = 2, message = "Taxa de servico deve ter no maximo 8 digitos inteiros e 2 decimais")
+            BigDecimal taxaServico,
 
-            @NotBlank(message = "A taxa de entrega e obrigatoria")
-            String taxaEntrega,
+            @NotNull(message = "A taxa de entrega e obrigatoria")
+            @DecimalMin(value = "0.00", message = "Taxa de entrega nao pode ser negativa")
+            @Digits(integer = 8, fraction = 2, message = "Taxa de entrega deve ter no maximo 8 digitos inteiros e 2 decimais")
+            BigDecimal taxaEntrega,
 
-            @NotBlank(message = "O horario de funcionamento e obrigatorio")
-            String horarioFuncionamento
+            @Valid
+            @NotEmpty(message = "O horario de funcionamento e obrigatorio")
+            List<HorarioFuncionamento> horarioFuncionamento
     ) {
     }
 
@@ -58,9 +74,9 @@ public final class LojaDTO {
             String telefone,
             Boolean aberto,
             String logoUrl,
-            String taxaServico,
-            String taxaEntrega,
-            String horarioFuncionamento,
+            BigDecimal taxaServico,
+            BigDecimal taxaEntrega,
+            List<HorarioFuncionamento> horarioFuncionamento,
             Instant createdAt,
             Instant updatedAt
     ) {
