@@ -1,5 +1,6 @@
 package back.camarao.sistema.model;
 
+import back.camarao.sistema.features.HorarioFuncionamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,10 +12,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import java.util.List;
-import back.camarao.sistema.features.HorarioFuncionamento;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Document(collection = "lojas")
 @Getter
@@ -46,11 +48,11 @@ public class Loja {
     @Field("logo_url")
     private String logoUrl;
 
-    @Field("taxa_servico")
-    private String taxaServico;
+    @Field(value = "taxa_servico", targetType = FieldType.DECIMAL128)
+    private BigDecimal taxaServico;
 
-    @Field("taxa_entrega")
-    private String taxaEntrega;
+    @Field(value = "taxa_entrega", targetType = FieldType.DECIMAL128)
+    private BigDecimal taxaEntrega;
 
     @Field("horario_funcionamento")
     private List<HorarioFuncionamento> horarioFuncionamento;

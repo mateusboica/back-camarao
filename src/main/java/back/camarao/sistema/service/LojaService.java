@@ -45,9 +45,9 @@ public class LojaService {
                 .telefone(dto.telefone().trim())
                 .aberto(dto.aberto())
                 .logoUrl(dto.logoUrl().trim())
-                .taxaServico(dto.taxaServico().trim())
-                .taxaEntrega(dto.taxaEntrega().trim())
-                .horarioFuncionamento(dto.horarioFuncionamento().trim())
+                .taxaServico(dto.taxaServico())
+                .taxaEntrega(dto.taxaEntrega())
+                .horarioFuncionamento(dto.horarioFuncionamento())
                 .build();
 
         Loja salva = lojaRepository.save(loja);
@@ -69,9 +69,9 @@ public class LojaService {
         existente.setTelefone(dto.telefone().trim());
         existente.setAberto(dto.aberto());
         existente.setLogoUrl(dto.logoUrl().trim());
-        existente.setTaxaServico(dto.taxaServico().trim());
-        existente.setTaxaEntrega(dto.taxaEntrega().trim());
-        existente.setHorarioFuncionamento(dto.horarioFuncionamento().trim());
+        existente.setTaxaServico(dto.taxaServico());
+        existente.setTaxaEntrega(dto.taxaEntrega());
+        existente.setHorarioFuncionamento(dto.horarioFuncionamento());
 
         Loja atualizada = lojaRepository.save(existente);
         log.info("Loja atualizada: id={}", id);
