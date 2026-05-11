@@ -1,6 +1,7 @@
 package back.camarao.sistema.model;
 
 import back.camarao.sistema.enums.StatusPedido;
+import back.camarao.sistema.enums.StatusPagamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -60,6 +61,9 @@ public class Pedido {
 
     @Field("status")
     private StatusPedido status;
+
+    @Field("status_pagamento") 
+    private StatusPagamento statusPagamento;
 
     @CreatedDate
     @Field("created_at")
