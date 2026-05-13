@@ -38,6 +38,7 @@ public class Pedido {
     @Field("telefone_cliente")
     private String telefoneCliente;
 
+    // Endereco completo resolvido a partir do CEP recebido no pedido.
     @Field("endereco_entrega")
     private String enderecoEntrega;
 

@@ -51,6 +51,25 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.listarTodos(pageable));
     }
 
+    @GetMapping("/cep/{cep}")
+    @Operation(summary = "Busca endereco de entrega por CEP")
+    @ApiResponse(responseCode = "200", description = "Endereco encontrado")
+    @ApiResponse(responseCode = "409", description = "CEP invalido ou nao encontrado")
+    public ResponseEntity<PedidoDTO.CepResponse> buscarEnderecoPorCep(@PathVariable String cep) {
+        return ResponseEntity.ok(pedidoService.buscarEnderecoPorCep(cep));
+    }
+
+    @GetMapping("/frete")
+    @Operation(summary = "Calcula o frete por CEP")
+    @ApiResponse(responseCode = "200", description = "Frete calculado")
+    @ApiResponse(responseCode = "404", description = "Loja nao encontrada")
+    @ApiResponse(responseCode = "409", description = "CEP invalido ou frete indisponivel")
+    public ResponseEntity<PedidoDTO.FreteResponse> calcularFrete(
+            @RequestParam String lojaId,
+            @RequestParam String cep) {
+        return ResponseEntity.ok(pedidoService.calcularFrete(lojaId, cep));
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     @Operation(summary = "Busca pedido por ID")

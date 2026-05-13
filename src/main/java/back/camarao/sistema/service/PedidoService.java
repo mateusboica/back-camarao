@@ -4,7 +4,9 @@ import back.camarao.sistema.dto.PedidoDTO;
 import back.camarao.sistema.enums.StatusPedido;
 import back.camarao.sistema.exception.BusinessRuleException;
 import back.camarao.sistema.exception.ResourceNotFoundException;
+import back.camarao.sistema.features.CalculoDistancia;
 import back.camarao.sistema.features.HorarioFuncionamento;
+import back.camarao.sistema.features.TransformadorCEP;
 import back.camarao.sistema.model.ItemPedido;
 import back.camarao.sistema.model.Loja;
 import back.camarao.sistema.model.Pedido;
@@ -35,6 +37,8 @@ public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
     private final LojaService lojaService;
+    private final TransformadorCEP transformadorCEP;
+    private final CalculoDistancia calculoDistancia;
 
     public Page<PedidoDTO.Response> listarTodos(Pageable pageable) {
         return pedidoRepository.findAll(pageable).map(PedidoDTO.Response::from);
@@ -72,14 +76,15 @@ public class PedidoService {
                 .map(ItemPedido::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal taxaServico = valorOuZero(loja.getTaxaServico());
-        BigDecimal taxaEntrega = valorOuZero(loja.getTaxaEntrega());
+        String enderecoEntrega = resolverEnderecoEntrega(dto.enderecoEntrega());
+        BigDecimal taxaEntrega = calcularTaxaEntrega(loja, enderecoEntrega);
         BigDecimal total = subtotal.add(taxaServico).add(taxaEntrega);
 
         Pedido pedido = Pedido.builder()
                 .lojaId(loja.getId())
                 .nomeCliente(dto.nomeCliente().trim())
                 .telefoneCliente(dto.telefoneCliente().trim())
-                .enderecoEntrega(dto.enderecoEntrega().trim())
+                .enderecoEntrega(enderecoEntrega)
                 .observacao(dto.observacao() == null ? null : dto.observacao().trim())
                 .itens(itens)
                 .subtotal(subtotal)
@@ -92,6 +97,20 @@ public class PedidoService {
         Pedido salvo = pedidoRepository.save(pedido);
         log.info("Pedido criado: id={}, lojaId={}, total={}", salvo.getId(), salvo.getLojaId(), salvo.getTotal());
         return PedidoDTO.Response.from(salvo);
+    }
+
+    public PedidoDTO.CepResponse buscarEnderecoPorCep(String cep) {
+        return PedidoDTO.CepResponse.from(transformadorCEP.obterEnderecoPorCep(cep));
+    }
+
+    public PedidoDTO.FreteResponse calcularFrete(String lojaId, String cep) {
+        Loja loja = lojaService.encontrarOuLancar(lojaId);
+        String enderecoEntrega = resolverEnderecoEntrega(cep);
+        BigDecimal valorPorKm = valorOuZero(loja.getTaxaEntrega());
+        BigDecimal distanciaKm = calculoDistancia.obterDistanciaKm(loja.getEndereco(), enderecoEntrega);
+        BigDecimal taxaEntrega = calculoDistancia.calcularFrete(distanciaKm, valorPorKm);
+
+        return new PedidoDTO.FreteResponse(cep, enderecoEntrega, distanciaKm, valorPorKm, taxaEntrega);
     }
 
     public PedidoDTO.Response alterarStatus(String id, StatusPedido status) {
@@ -130,6 +149,20 @@ public class PedidoService {
                 .quantidade(item.quantidade())
                 .subtotal(subtotal)
                 .build();
+    }
+
+    private String resolverEnderecoEntrega(String cep) {
+        TransformadorCEP.Endereco endereco = transformadorCEP.obterEnderecoPorCep(cep);
+        return transformadorCEP.formatarEndereco(endereco);
+    }
+
+    private BigDecimal calcularTaxaEntrega(Loja loja, String enderecoEntrega) {
+        BigDecimal valorPorKm = valorOuZero(loja.getTaxaEntrega());
+        if (valorPorKm.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return calculoDistancia.calcularFrete(loja.getEndereco(), enderecoEntrega, valorPorKm);
     }
 
     private boolean lojaEstaAberta(Loja loja) {

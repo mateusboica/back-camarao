@@ -1,6 +1,7 @@
 package back.camarao.sistema.dto;
 
 import back.camarao.sistema.enums.StatusPedido;
+import back.camarao.sistema.features.TransformadorCEP;
 import back.camarao.sistema.model.ItemPedido;
 import back.camarao.sistema.model.Pedido;
 import jakarta.validation.Valid;
@@ -42,8 +43,8 @@ public final class PedidoDTO {
             @Pattern(regexp = "^\\+?[0-9 ()-]{10,20}$", message = "Telefone deve conter entre 10 e 20 caracteres validos")
             String telefoneCliente,
 
-            @NotBlank(message = "O endereco de entrega e obrigatorio")
-            @Size(max = 300, message = "Endereco deve ter no maximo 300 caracteres")
+            @NotBlank(message = "O CEP de entrega e obrigatorio")
+            @Pattern(regexp = "^\\d{5}-?\\d{3}$", message = "CEP deve conter 8 digitos")
             String enderecoEntrega,
 
             @Size(max = 500, message = "Observacao deve ter no maximo 500 caracteres")
@@ -58,6 +59,34 @@ public final class PedidoDTO {
     public record PatchStatus(
             @NotNull(message = "O status do pedido e obrigatorio")
             StatusPedido status
+    ) {
+    }
+
+    public record CepResponse(
+            String cep,
+            String logradouro,
+            String complemento,
+            String bairro,
+            String cidade,
+            String estado
+    ) {
+        public static CepResponse from(TransformadorCEP.Endereco endereco) {
+            return new CepResponse(
+                    endereco.cep(),
+                    endereco.logradouro(),
+                    endereco.complemento(),
+                    endereco.bairro(),
+                    endereco.localidade(),
+                    endereco.uf());
+        }
+    }
+
+    public record FreteResponse(
+            String cep,
+            String enderecoEntrega,
+            BigDecimal distanciaKm,
+            BigDecimal valorPorKm,
+            BigDecimal taxaEntrega
     ) {
     }
 

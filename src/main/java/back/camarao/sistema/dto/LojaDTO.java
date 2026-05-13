@@ -49,9 +49,9 @@ public final class LojaDTO {
             @Digits(integer = 8, fraction = 2, message = "Taxa de servico deve ter no maximo 8 digitos inteiros e 2 decimais")
             BigDecimal taxaServico,
 
-            @NotNull(message = "A taxa de entrega e obrigatoria")
-            @DecimalMin(value = "0.00", message = "Taxa de entrega nao pode ser negativa")
-            @Digits(integer = 8, fraction = 2, message = "Taxa de entrega deve ter no maximo 8 digitos inteiros e 2 decimais")
+            @NotNull(message = "O valor de entrega por km e obrigatorio")
+            @DecimalMin(value = "0.00", message = "Valor de entrega por km nao pode ser negativo")
+            @Digits(integer = 8, fraction = 2, message = "Valor de entrega por km deve ter no maximo 8 digitos inteiros e 2 decimais")
             BigDecimal taxaEntrega,
 
             @Valid
