@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/maps", "/api/v1/maps/**", "/v1/maps", "/v1/maps/**").permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
