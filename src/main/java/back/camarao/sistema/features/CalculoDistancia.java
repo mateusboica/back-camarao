@@ -14,15 +14,22 @@ public class CalculoDistancia {
     }
 
     @Value("${api-key}")
-        String apiKey;
+      private String apiKey;
 
-    public String obterDistancia(){
-        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=New%20York%20City%2C%20NY&origins=Washington%2C%20DC&units=imperial&key=" + apiKey;
+   public String obterDistancia() {
         String response = restClient.get()
-        .uri(url)
-        .retrieve()
-        .body(String.class);
-
+            .uri(uriBuilder -> uriBuilder
+                .scheme("https")
+                .host("maps.googleapis.com")
+                .path("/maps/api/distancematrix/json")
+                .queryParam("destinations", "New York City, NY") 
+                .queryParam("origins", "Washington, DC")
+                .queryParam("units", "imperial")
+                .queryParam("key", apiKey)
+                .build()
+            )
+            .retrieve()
+            .body(String.class);
         return response;
         
     }
