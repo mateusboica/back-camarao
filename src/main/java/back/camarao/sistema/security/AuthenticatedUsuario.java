@@ -3,35 +3,35 @@ package back.camarao.sistema.security;
 import java.util.Collection;
 import java.util.List;
 
-import back.camarao.sistema.model.User;
+import back.camarao.sistema.model.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class AuthenticatedUser implements UserDetails {
+public class AuthenticatedUsuario implements UserDetails {
 
-    private final User user;
+    private final Usuario usuario;
 
-    public AuthenticatedUser(User user) {
-        this.user = user;
+    public AuthenticatedUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
-    public User getUser() {
-        return user;
+    public Usuario getUsuario() {
+        return usuario;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getAcesso().toUpperCase()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getAcesso().toUpperCase()));
     }
 
     @Override
     public String getPassword() {
-        return user.getSenha();
+        return usuario.getSenha();
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return usuario.getEmail();
     }
 }

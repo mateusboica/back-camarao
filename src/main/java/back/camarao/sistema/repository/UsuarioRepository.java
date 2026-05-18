@@ -4,15 +4,15 @@ import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import back.camarao.sistema.model.User;
+import back.camarao.sistema.model.Usuario;
 
-public interface UserRepository extends MongoRepository<User, String> {
+public interface UsuarioRepository extends MongoRepository<Usuario, String> {
 
     boolean existsByNomeIgnoreCase(String nome);
 
     boolean existsByEmailIgnoreCase(String email);
 
-    Optional<User> findByNomeIgnoreCase(String nome);
+    Optional<Usuario> findByNomeIgnoreCase(String nome);
 
-    Optional<User> findByEmailIgnoreCase(String email);
+    Optional<Usuario> findByEmailIgnoreCase(String email);
 }

@@ -4,9 +4,9 @@ import back.camarao.sistema.dto.PedidoDTO;
 import back.camarao.sistema.enums.StatusPedido;
 import back.camarao.sistema.exception.BusinessRuleException;
 import back.camarao.sistema.exception.ResourceNotFoundException;
-import back.camarao.sistema.features.CalculoDistancia;
-import back.camarao.sistema.features.HorarioFuncionamento;
-import back.camarao.sistema.features.TransformadorCEP;
+import back.camarao.sistema.integration.maps.GoogleDistanceMatrixService;
+import back.camarao.sistema.model.HorarioFuncionamento;
+import back.camarao.sistema.integration.cep.CepService;
 import back.camarao.sistema.model.ItemPedido;
 import back.camarao.sistema.model.Loja;
 import back.camarao.sistema.model.Pedido;
@@ -37,8 +37,8 @@ public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
     private final LojaService lojaService;
-    private final TransformadorCEP transformadorCEP;
-    private final CalculoDistancia calculoDistancia;
+    private final CepService cepService;
+    private final GoogleDistanceMatrixService distanceMatrixService;
 
     public Page<PedidoDTO.Response> listarTodos(Pageable pageable) {
         return pedidoRepository.findAll(pageable).map(PedidoDTO.Response::from);
@@ -75,16 +75,24 @@ public class PedidoService {
         BigDecimal subtotal = itens.stream()
                 .map(ItemPedido::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        EnderecoPedido enderecoPedido = resolverEnderecoPedido(dto);
         BigDecimal taxaServico = valorOuZero(loja.getTaxaServico());
-        String enderecoEntrega = resolverEnderecoEntrega(dto.enderecoEntrega());
-        BigDecimal taxaEntrega = calcularTaxaEntrega(loja, enderecoEntrega);
+        BigDecimal taxaEntrega = calcularTaxaEntrega(loja, enderecoPedido);
         BigDecimal total = subtotal.add(taxaServico).add(taxaEntrega);
 
         Pedido pedido = Pedido.builder()
                 .lojaId(loja.getId())
                 .nomeCliente(dto.nomeCliente().trim())
                 .telefoneCliente(dto.telefoneCliente().trim())
-                .enderecoEntrega(enderecoEntrega)
+                .enderecoEntrega(enderecoPedido.resumo())
+                .cepEntrega(enderecoPedido.cep())
+                .ruaEntrega(enderecoPedido.rua())
+                .numeroEntrega(enderecoPedido.numero())
+                .bairroEntrega(enderecoPedido.bairro())
+                .complementoEntrega(enderecoPedido.complemento())
+                .referenciaEntrega(enderecoPedido.referencia())
+                .metodoPagamento(dto.pagamento() == null ? null : dto.pagamento().metodo())
+                .trocoPara(dto.pagamento() == null ? null : dto.pagamento().trocoPara())
                 .observacao(dto.observacao() == null ? null : dto.observacao().trim())
                 .itens(itens)
                 .subtotal(subtotal)
@@ -100,15 +108,15 @@ public class PedidoService {
     }
 
     public PedidoDTO.CepResponse buscarEnderecoPorCep(String cep) {
-        return PedidoDTO.CepResponse.from(transformadorCEP.obterEnderecoPorCep(cep));
+        return PedidoDTO.CepResponse.from(cepService.obterEnderecoPorCep(cep));
     }
 
     public PedidoDTO.FreteResponse calcularFrete(String lojaId, String cep) {
         Loja loja = lojaService.encontrarOuLancar(lojaId);
         String enderecoEntrega = resolverEnderecoEntrega(cep);
-        BigDecimal valorPorKm = valorOuZero(loja.getTaxaEntrega());
-        BigDecimal distanciaKm = calculoDistancia.obterDistanciaKm(loja.getEndereco(), enderecoEntrega);
-        BigDecimal taxaEntrega = calculoDistancia.calcularFrete(distanciaKm, valorPorKm);
+        BigDecimal valorPorKm = valorOuZero(loja.getValorEntregaPorKm());
+        BigDecimal distanciaKm = distanceMatrixService.obterDistanciaKm(loja.getEndereco(), enderecoEntrega);
+        BigDecimal taxaEntrega = distanceMatrixService.calcularFrete(distanciaKm, valorPorKm);
 
         return new PedidoDTO.FreteResponse(cep, enderecoEntrega, distanciaKm, valorPorKm, taxaEntrega);
     }
@@ -152,17 +160,82 @@ public class PedidoService {
     }
 
     private String resolverEnderecoEntrega(String cep) {
-        TransformadorCEP.Endereco endereco = transformadorCEP.obterEnderecoPorCep(cep);
-        return transformadorCEP.formatarEndereco(endereco);
+        CepService.Endereco endereco = cepService.obterEnderecoPorCep(cep);
+        return cepService.formatarEndereco(endereco);
     }
 
-    private BigDecimal calcularTaxaEntrega(Loja loja, String enderecoEntrega) {
-        BigDecimal valorPorKm = valorOuZero(loja.getTaxaEntrega());
+    private EnderecoPedido resolverEnderecoPedido(PedidoDTO.Request dto) {
+        PedidoDTO.EnderecoEntregaRequest endereco = dto.endereco();
+        String cep = endereco == null ? dto.enderecoEntrega() : endereco.cep();
+        boolean semCep = endereco != null && Boolean.TRUE.equals(endereco.semCep());
+
+        if (!semCep && cep != null && !cep.isBlank()) {
+            CepService.Endereco enderecoCep = cepService.obterEnderecoPorCep(cep);
+            String rua = primeiroTexto(endereco == null ? null : endereco.rua(), enderecoCep.logradouro());
+            String bairro = primeiroTexto(endereco == null ? null : endereco.bairro(), enderecoCep.bairro());
+            String numero = endereco == null ? null : textoOuNulo(endereco.numero());
+            String complemento = primeiroTexto(endereco == null ? null : endereco.complemento(), enderecoCep.complemento());
+            String referencia = endereco == null ? null : textoOuNulo(endereco.referencia());
+
+            return new EnderecoPedido(
+                    enderecoCep.cep(),
+                    rua,
+                    numero,
+                    bairro,
+                    complemento,
+                    referencia,
+                    formatarEnderecoPedido(rua, numero, bairro, enderecoCep.localidade(), enderecoCep.uf(), enderecoCep.cep()));
+        }
+
+        if (endereco == null
+                || textoOuNulo(endereco.rua()) == null
+                || textoOuNulo(endereco.numero()) == null
+                || textoOuNulo(endereco.bairro()) == null) {
+            throw new BusinessRuleException("Informe rua, numero e bairro para entrega");
+        }
+
+        return new EnderecoPedido(
+                null,
+                endereco.rua().trim(),
+                endereco.numero().trim(),
+                endereco.bairro().trim(),
+                textoOuNulo(endereco.complemento()),
+                textoOuNulo(endereco.referencia()),
+                formatarEnderecoManual(endereco));
+    }
+
+    private BigDecimal calcularTaxaEntrega(Loja loja, EnderecoPedido enderecoPedido) {
+        BigDecimal valorPorKm = valorOuZero(loja.getValorEntregaPorKm());
         if (valorPorKm.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
 
-        return calculoDistancia.calcularFrete(loja.getEndereco(), enderecoEntrega, valorPorKm);
+        if (enderecoPedido.cep() == null || enderecoPedido.cep().isBlank()) {
+            return valorPorKm;
+        }
+
+        return distanceMatrixService.calcularFrete(loja.getEndereco(), enderecoPedido.resumo(), valorPorKm);
+    }
+
+    private String formatarEnderecoPedido(String rua, String numero, String bairro, String cidade, String estado, String cep) {
+        String numeroFormatado = numero == null ? "S/N" : numero;
+        return "%s, %s, %s - %s/%s, CEP %s".formatted(rua, numeroFormatado, bairro, cidade, estado, cep);
+    }
+
+    private String formatarEnderecoManual(PedidoDTO.EnderecoEntregaRequest endereco) {
+        return "%s, %s, %s".formatted(
+                endereco.rua().trim(),
+                endereco.numero().trim(),
+                endereco.bairro().trim());
+    }
+
+    private String primeiroTexto(String preferencial, String fallback) {
+        String texto = textoOuNulo(preferencial);
+        return texto == null ? textoOuNulo(fallback) : texto;
+    }
+
+    private String textoOuNulo(String valor) {
+        return valor == null || valor.isBlank() ? null : valor.trim();
     }
 
     private boolean lojaEstaAberta(Loja loja) {
@@ -189,5 +262,16 @@ public class PedidoService {
 
     private BigDecimal valorOuZero(BigDecimal valor) {
         return valor == null ? BigDecimal.ZERO : valor;
+    }
+
+    private record EnderecoPedido(
+            String cep,
+            String rua,
+            String numero,
+            String bairro,
+            String complemento,
+            String referencia,
+            String resumo
+    ) {
     }
 }

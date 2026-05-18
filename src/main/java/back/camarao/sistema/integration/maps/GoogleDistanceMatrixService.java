@@ -1,8 +1,7 @@
-package back.camarao.sistema.features;
+package back.camarao.sistema.integration.maps;
 
 import back.camarao.sistema.exception.BusinessRuleException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -12,22 +11,12 @@ import java.math.RoundingMode;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class CalculoDistancia {
+public class GoogleDistanceMatrixService {
 
-    private final TransformadorCEP transformadorCEP;
     private final RestClient restClient = RestClient.create();
 
-    @Value("${api-key}")
+    @Value("${google.maps.api-key}")
     private String apiKey;
-
-    public String obterEndereco(String cep) {
-        return transformadorCEP.formatarEndereco(transformadorCEP.obterEnderecoPorCep(cep));
-    }
-
-    public String obterDistancia(String cep) {
-        return obterDistancia("Candangolandia, Brasilia, DF", obterEndereco(cep));
-    }
 
     public BigDecimal calcularFrete(String origem, String destino, BigDecimal valorPorKm) {
         BigDecimal distanciaKm = obterDistanciaKm(origem, destino);
@@ -44,21 +33,6 @@ public class CalculoDistancia {
 
         return BigDecimal.valueOf(element.distance().value())
                 .divide(BigDecimal.valueOf(1000), 2, RoundingMode.HALF_UP);
-    }
-
-    private String obterDistancia(String origem, String destino) {
-        return restClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme("https")
-                        .host("maps.googleapis.com")
-                        .path("/maps/api/distancematrix/json")
-                        .queryParam("destinations", destino)
-                        .queryParam("origins", origem)
-                        .queryParam("units", "metric")
-                        .queryParam("key", apiKey)
-                        .build())
-                .retrieve()
-                .body(String.class);
     }
 
     private DistanceMatrixResponse consultarDistancia(String origem, String destino) {

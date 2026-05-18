@@ -1,6 +1,6 @@
 package back.camarao.sistema.enums;
 
-public enum Roles {
+public enum PerfilAcesso {
     ADMIN,
     USER
 }

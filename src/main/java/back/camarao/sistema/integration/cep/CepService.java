@@ -1,4 +1,4 @@
-package back.camarao.sistema.features;
+package back.camarao.sistema.integration.cep;
 
 import back.camarao.sistema.exception.BusinessRuleException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service
-public class TransformadorCEP {
+public class CepService {
 
     private final RestClient restClient;
 
-    public TransformadorCEP() {
+    public CepService() {
         this.restClient = RestClient.create();
     }
 

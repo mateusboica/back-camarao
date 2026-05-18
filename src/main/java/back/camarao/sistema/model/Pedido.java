@@ -1,7 +1,6 @@
 package back.camarao.sistema.model;
 
 import back.camarao.sistema.enums.StatusPedido;
-import back.camarao.sistema.enums.StatusPagamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,9 +37,32 @@ public class Pedido {
     @Field("telefone_cliente")
     private String telefoneCliente;
 
-    // Endereco completo resolvido a partir do CEP recebido no pedido.
     @Field("endereco_entrega")
     private String enderecoEntrega;
+
+    @Field("cep_entrega")
+    private String cepEntrega;
+
+    @Field("rua_entrega")
+    private String ruaEntrega;
+
+    @Field("numero_entrega")
+    private String numeroEntrega;
+
+    @Field("bairro_entrega")
+    private String bairroEntrega;
+
+    @Field("complemento_entrega")
+    private String complementoEntrega;
+
+    @Field("referencia_entrega")
+    private String referenciaEntrega;
+
+    @Field("metodo_pagamento")
+    private String metodoPagamento;
+
+    @Field(value = "troco_para", targetType = FieldType.DECIMAL128)
+    private BigDecimal trocoPara;
 
     @Field("observacao")
     private String observacao;
@@ -62,9 +84,6 @@ public class Pedido {
 
     @Field("status")
     private StatusPedido status;
-
-    @Field("status_pagamento") 
-    private StatusPagamento statusPagamento;
 
     @CreatedDate
     @Field("created_at")

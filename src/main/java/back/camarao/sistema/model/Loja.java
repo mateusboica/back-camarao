@@ -1,6 +1,5 @@
 package back.camarao.sistema.model;
 
-import back.camarao.sistema.features.HorarioFuncionamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,7 +51,7 @@ public class Loja {
     private BigDecimal taxaServico;
 
     @Field(value = "taxa_entrega", targetType = FieldType.DECIMAL128)
-    private BigDecimal taxaEntrega;
+    private BigDecimal valorEntregaPorKm;
 
     @Field("horario_funcionamento")
     private List<HorarioFuncionamento> horarioFuncionamento;

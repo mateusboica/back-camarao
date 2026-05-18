@@ -1,7 +1,7 @@
 package back.camarao.sistema.dto;
 
 import back.camarao.sistema.enums.StatusPedido;
-import back.camarao.sistema.features.TransformadorCEP;
+import back.camarao.sistema.integration.cep.CepService;
 import back.camarao.sistema.model.ItemPedido;
 import back.camarao.sistema.model.Pedido;
 import jakarta.validation.Valid;
@@ -43,9 +43,11 @@ public final class PedidoDTO {
             @Pattern(regexp = "^\\+?[0-9 ()-]{10,20}$", message = "Telefone deve conter entre 10 e 20 caracteres validos")
             String telefoneCliente,
 
-            @NotBlank(message = "O CEP de entrega e obrigatorio")
-            @Pattern(regexp = "^\\d{5}-?\\d{3}$", message = "CEP deve conter 8 digitos")
             String enderecoEntrega,
+
+            EnderecoEntregaRequest endereco,
+
+            PagamentoRequest pagamento,
 
             @Size(max = 500, message = "Observacao deve ter no maximo 500 caracteres")
             String observacao,
@@ -53,6 +55,27 @@ public final class PedidoDTO {
             @Valid
             @NotEmpty(message = "Informe ao menos um item no pedido")
             List<ItemRequest> itens
+    ) {
+    }
+
+    public record EnderecoEntregaRequest(
+            @Pattern(regexp = "^\\d{5}-?\\d{3}$", message = "CEP deve conter 8 digitos")
+            String cep,
+
+            String rua,
+            String numero,
+            String bairro,
+            String complemento,
+            String referencia,
+            Boolean semCep
+    ) {
+    }
+
+    public record PagamentoRequest(
+            @NotBlank(message = "A forma de pagamento e obrigatoria")
+            String metodo,
+
+            BigDecimal trocoPara
     ) {
     }
 
@@ -70,7 +93,7 @@ public final class PedidoDTO {
             String cidade,
             String estado
     ) {
-        public static CepResponse from(TransformadorCEP.Endereco endereco) {
+        public static CepResponse from(CepService.Endereco endereco) {
             return new CepResponse(
                     endereco.cep(),
                     endereco.logradouro(),
@@ -113,6 +136,9 @@ public final class PedidoDTO {
             String nomeCliente,
             String telefoneCliente,
             String enderecoEntrega,
+            EnderecoEntregaResponse endereco,
+            String metodoPagamento,
+            BigDecimal trocoPara,
             String observacao,
             List<ItemResponse> itens,
             BigDecimal subtotal,
@@ -130,6 +156,9 @@ public final class PedidoDTO {
                     pedido.getNomeCliente(),
                     pedido.getTelefoneCliente(),
                     pedido.getEnderecoEntrega(),
+                    EnderecoEntregaResponse.from(pedido),
+                    pedido.getMetodoPagamento(),
+                    pedido.getTrocoPara(),
                     pedido.getObservacao(),
                     pedido.getItens().stream().map(ItemResponse::from).toList(),
                     pedido.getSubtotal(),
@@ -139,6 +168,25 @@ public final class PedidoDTO {
                     pedido.getStatus(),
                     pedido.getCreatedAt(),
                     pedido.getUpdatedAt());
+        }
+    }
+
+    public record EnderecoEntregaResponse(
+            String cep,
+            String rua,
+            String numero,
+            String bairro,
+            String complemento,
+            String referencia
+    ) {
+        public static EnderecoEntregaResponse from(Pedido pedido) {
+            return new EnderecoEntregaResponse(
+                    pedido.getCepEntrega(),
+                    pedido.getRuaEntrega(),
+                    pedido.getNumeroEntrega(),
+                    pedido.getBairroEntrega(),
+                    pedido.getComplementoEntrega(),
+                    pedido.getReferenciaEntrega());
         }
     }
 }

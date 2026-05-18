@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -96,4 +97,12 @@ public class LojaController {
         lojaService.deletar(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/fechar-loja")
+    @Operation(summary = "Fecha a loja para novos pedidos")
+    public ResponseEntity<LojaDTO.LojaResponse> fecharLoja(@PathVariable String
+    id) {
+            return ResponseEntity.ok(lojaService.fecharLoja(id));
+        }
 }

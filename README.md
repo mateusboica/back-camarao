@@ -34,6 +34,7 @@ src/main/java/back/camarao/sistema
 |- dto           # contratos de entrada e saida
 |- enums         # categorias e roles
 |- exception     # tratamento global de erros
+|- integration   # clientes de servicos externos, como ViaCEP e Google Maps
 |- model         # documentos do MongoDB
 |- repository    # acesso a dados
 |- security      # filtro JWT e servicos de autenticacao
@@ -55,6 +56,8 @@ O projeto depende destas variaveis:
 | `MONGODB_URI` | Sim | String de conexao do MongoDB |
 | `JWT_SECRET` | Sim | Segredo usado para assinar os tokens |
 | `JWT_EXPIRATION_MS` | Sim | Tempo de expiracao do token em milissegundos |
+| `GOOGLE_MAPS_API_KEY` | Sim | Chave usada para calcular distancia e frete |
+| `APP_CORS_ALLOWED_ORIGIN_PATTERNS` | Nao | Origens permitidas no CORS; por padrao aceita o Vite local |
 
 Exemplo no PowerShell:
 
@@ -62,6 +65,7 @@ Exemplo no PowerShell:
 $env:MONGODB_URI="mongodb://localhost:27017/back-camarao"
 $env:JWT_SECRET="troque-por-um-segredo-forte-com-pelo-menos-32-caracteres"
 $env:JWT_EXPIRATION_MS="604800000"
+$env:GOOGLE_MAPS_API_KEY="sua-chave-do-google-maps"
 ```
 
 ## Como rodar localmente

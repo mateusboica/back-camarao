@@ -39,7 +39,7 @@ public class Produto {
     private String descricao;
 
     @Field("is_disponivel")
-    private boolean isDisponivel;
+    private boolean disponivel;
 
     @Field("img")
     private String img;
