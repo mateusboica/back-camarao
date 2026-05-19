@@ -12,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -30,6 +31,10 @@ public class Pedido {
 
     @Field("loja_id")
     private String lojaId;
+
+    @Indexed(unique = true)
+    @Field("codigo")
+    private String codigo;
 
     @Field("nome_cliente")
     private String nomeCliente;
@@ -84,6 +89,12 @@ public class Pedido {
 
     @Field("status")
     private StatusPedido status;
+
+    @Field("status_atualizado_em")
+    private Instant statusAtualizadoEm;
+
+    @Field("historico_status")
+    private List<StatusHistoricoPedido> historicoStatus;
 
     @CreatedDate
     @Field("created_at")

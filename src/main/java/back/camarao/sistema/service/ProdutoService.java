@@ -13,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -73,9 +76,9 @@ public class ProdutoService {
                 .preco(dto.preco())
                 .descricao(dto.descricao().trim())
                 .disponivel(dto.isDisponivel())
-                .img(dto.img())
+                .img(dto.img().trim())
                 .categoria(dto.categoria())
-                .tags(dto.tags())
+                .tags(normalizarTags(dto.tags()))
                 .build();
 
         Produto salvo = produtoRepository.save(produto);
@@ -97,9 +100,9 @@ public class ProdutoService {
         existente.setPreco(dto.preco());
         existente.setDescricao(dto.descricao().trim());
         existente.setDisponivel(dto.isDisponivel());
-        existente.setImg(dto.img());
+        existente.setImg(dto.img().trim());
         existente.setCategoria(dto.categoria());
-        existente.setTags(dto.tags());
+        existente.setTags(normalizarTags(dto.tags()));
 
         Produto atualizado = produtoRepository.save(existente);
         log.info("Produto atualizado: id={}", id);
@@ -131,5 +134,18 @@ public class ProdutoService {
                 .replaceAll("[^a-z0-9\\s-]", "")
                 .replaceAll("\\s+", "-")
                 .replaceAll("(^-|-$)", "");
+    }
+
+    private List<String> normalizarTags(List<String> tags) {
+        if (tags == null) {
+            return List.of();
+        }
+
+        return tags.stream()
+                .filter(Objects::nonNull)
+                .map(tag -> tag.trim().replaceAll(",", "").replaceAll("\\s+", "_").toLowerCase(Locale.ROOT))
+                .filter(tag -> !tag.isBlank())
+                .distinct()
+                .toList();
     }
 }

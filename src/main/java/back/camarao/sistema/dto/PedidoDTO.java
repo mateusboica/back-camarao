@@ -4,6 +4,7 @@ import back.camarao.sistema.enums.StatusPedido;
 import back.camarao.sistema.integration.cep.CepService;
 import back.camarao.sistema.model.ItemPedido;
 import back.camarao.sistema.model.Pedido;
+import back.camarao.sistema.model.StatusHistoricoPedido;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -81,7 +82,10 @@ public final class PedidoDTO {
 
     public record PatchStatus(
             @NotNull(message = "O status do pedido e obrigatorio")
-            StatusPedido status
+            StatusPedido status,
+
+            @Size(max = 300, message = "Observacao de status deve ter no maximo 300 caracteres")
+            String observacao
     ) {
     }
 
@@ -132,6 +136,7 @@ public final class PedidoDTO {
 
     public record Response(
             String id,
+            String codigo,
             String lojaId,
             String nomeCliente,
             String telefoneCliente,
@@ -146,12 +151,16 @@ public final class PedidoDTO {
             BigDecimal taxaEntrega,
             BigDecimal total,
             StatusPedido status,
+            String statusLabel,
+            Instant statusAtualizadoEm,
+            List<StatusHistoricoResponse> historicoStatus,
             Instant createdAt,
             Instant updatedAt
     ) {
         public static Response from(Pedido pedido) {
             return new Response(
                     pedido.getId(),
+                    pedido.getCodigo(),
                     pedido.getLojaId(),
                     pedido.getNomeCliente(),
                     pedido.getTelefoneCliente(),
@@ -166,8 +175,28 @@ public final class PedidoDTO {
                     pedido.getTaxaEntrega(),
                     pedido.getTotal(),
                     pedido.getStatus(),
+                    statusLabel(pedido.getStatus()),
+                    pedido.getStatusAtualizadoEm(),
+                    pedido.getHistoricoStatus() == null
+                            ? List.of()
+                            : pedido.getHistoricoStatus().stream().map(StatusHistoricoResponse::from).toList(),
                     pedido.getCreatedAt(),
                     pedido.getUpdatedAt());
+        }
+    }
+
+    public record StatusHistoricoResponse(
+            StatusPedido status,
+            String statusLabel,
+            Instant alteradoEm,
+            String observacao
+    ) {
+        public static StatusHistoricoResponse from(StatusHistoricoPedido historico) {
+            return new StatusHistoricoResponse(
+                    historico.getStatus(),
+                    statusLabel(historico.getStatus()),
+                    historico.getAlteradoEm(),
+                    historico.getObservacao());
         }
     }
 
@@ -188,5 +217,19 @@ public final class PedidoDTO {
                     pedido.getComplementoEntrega(),
                     pedido.getReferenciaEntrega());
         }
+    }
+
+    private static String statusLabel(StatusPedido status) {
+        if (status == null) {
+            return "Status nao informado";
+        }
+
+        return switch (status) {
+            case RECEBIDO -> "Pedido recebido";
+            case EM_PREPARO -> "Em preparo";
+            case SAIU_PARA_ENTREGA -> "Saiu para entrega";
+            case ENTREGUE -> "Entregue";
+            case CANCELADO -> "Cancelado";
+        };
     }
 }

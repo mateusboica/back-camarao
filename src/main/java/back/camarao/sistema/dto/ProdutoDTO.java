@@ -32,11 +32,13 @@ public final class ProdutoDTO {
             boolean isDisponivel,
 
             @NotBlank(message = "A URL da imagem e obrigatoria")
+            @Size(max = 500, message = "URL da imagem deve ter no maximo 500 caracteres")
             String img,
 
             @NotNull(message = "A categoria e obrigatoria")
             Categoria categoria,
 
+            @Size(max = 12, message = "Informe no maximo 12 tags")
             List<String> tags
     ) {
     }
@@ -44,6 +46,7 @@ public final class ProdutoDTO {
     public record Response(
             String id,
             String nome,
+            String slug,
             BigDecimal preco,
             String descricao,
             boolean isDisponivel,
@@ -57,6 +60,7 @@ public final class ProdutoDTO {
             return new Response(
                     produto.getId(),
                     produto.getNome(),
+                    produto.getSlug(),
                     produto.getPreco(),
                     produto.getDescricao(),
                     produto.isDisponivel(),

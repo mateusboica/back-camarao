@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/pedidos", "/v1/pedidos").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/cep/**", "/v1/pedidos/cep/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/frete", "/v1/pedidos/frete").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/acompanhamento/**", "/v1/pedidos/acompanhamento/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
