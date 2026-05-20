@@ -175,7 +175,7 @@ public final class PedidoDTO {
                     pedido.getTaxaEntrega(),
                     pedido.getTotal(),
                     pedido.getStatus(),
-                    statusLabel(pedido.getStatus()),
+                    formatStatusLabel(pedido.getStatus()),
                     pedido.getStatusAtualizadoEm(),
                     pedido.getHistoricoStatus() == null
                             ? List.of()
@@ -194,7 +194,7 @@ public final class PedidoDTO {
         public static StatusHistoricoResponse from(StatusHistoricoPedido historico) {
             return new StatusHistoricoResponse(
                     historico.getStatus(),
-                    statusLabel(historico.getStatus()),
+                    formatStatusLabel(historico.getStatus()),
                     historico.getAlteradoEm(),
                     historico.getObservacao());
         }
@@ -219,7 +219,7 @@ public final class PedidoDTO {
         }
     }
 
-    private static String statusLabel(StatusPedido status) {
+    private static String formatStatusLabel(StatusPedido status) {
         if (status == null) {
             return "Status nao informado";
         }

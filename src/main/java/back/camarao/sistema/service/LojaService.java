@@ -94,4 +94,9 @@ public class LojaService {
         return lojaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Loja", id));
     }
+    public LojaDTO.LojaResponse fecharLoja(String id) {
+        Loja loja = encontrarOuLancar(id);
+        loja.setAberto(false);
+        return LojaDTO.LojaResponse.from(lojaRepository.save(loja));
+    }
 }
