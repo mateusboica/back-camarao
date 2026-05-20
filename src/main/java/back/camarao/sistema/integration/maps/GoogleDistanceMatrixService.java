@@ -28,6 +28,7 @@ public class GoogleDistanceMatrixService {
     }
 
     public BigDecimal obterDistanciaKm(String origem, String destino) {
+        validarConfiguracao();
         DistanceMatrixResponse response = consultarDistancia(origem, destino);
         Element element = primeiroElementoValido(response);
 
@@ -48,6 +49,12 @@ public class GoogleDistanceMatrixService {
                         .build())
                 .retrieve()
                 .body(DistanceMatrixResponse.class);
+    }
+
+    private void validarConfiguracao() {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new BusinessRuleException("Calculo de frete por distancia nao configurado");
+        }
     }
 
     private Element primeiroElementoValido(DistanceMatrixResponse response) {
