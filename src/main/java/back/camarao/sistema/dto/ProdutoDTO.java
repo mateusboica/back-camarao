@@ -13,69 +13,67 @@ import java.util.List;
 
 public final class ProdutoDTO {
 
-    private ProdutoDTO() {}
-
-    // ── REQUEST (criação / atualização) ──────────────────────────────────────
+    private ProdutoDTO() {
+    }
 
     public record Request(
+            @NotBlank(message = "O nome e obrigatorio")
+            @Size(min = 3, max = 120, message = "Nome deve ter entre 3 e 120 caracteres")
+            String nome,
 
-        @NotBlank(message = "O nome é obrigatório")
-        @Size(min = 3, max = 120, message = "Nome deve ter entre 3 e 120 caracteres")
-        String nome,
+            @NotNull(message = "O preco e obrigatorio")
+            @DecimalMin(value = "0.01", message = "Preco deve ser maior que zero")
+            BigDecimal preco,
 
-        @NotNull(message = "O preço é obrigatório")
-        @DecimalMin(value = "0.01", message = "Preço deve ser maior que zero")
-        BigDecimal preco,
+            @NotBlank(message = "A descricao e obrigatoria")
+            @Size(max = 1000, message = "Descricao deve ter no maximo 1000 caracteres")
+            String descricao,
 
-        @NotBlank(message = "A descrição é obrigatória")
-        @Size(max = 1000, message = "Descrição deve ter no máximo 1000 caracteres")
-        String descricao,
+            boolean isDisponivel,
 
-        boolean isDisponivel,
+            @NotBlank(message = "A URL da imagem e obrigatoria")
+            @Size(max = 500, message = "URL da imagem deve ter no maximo 500 caracteres")
+            String img,
 
-        @NotBlank(message = "A URL da imagem é obrigatória")
-        String img,
+            @NotNull(message = "A categoria e obrigatoria")
+            Categoria categoria,
 
-        @NotNull(message = "A categoria é obrigatória")
-        Categoria categoria,
-
-        List<String> tags
-    ) {}
-
-    // ── RESPONSE (retorno para o cliente) ────────────────────────────────────
+            @Size(max = 12, message = "Informe no maximo 12 tags")
+            List<String> tags
+    ) {
+    }
 
     public record Response(
-        String id,
-        String nome,
-        BigDecimal preco,
-        String descricao,
-        boolean isDisponivel,
-        String img,
-        Categoria categoria,
-        List<String> tags,
-        Instant createdAt,
-        Instant updatedAt
+            String id,
+            String nome,
+            String slug,
+            BigDecimal preco,
+            String descricao,
+            boolean isDisponivel,
+            String img,
+            Categoria categoria,
+            List<String> tags,
+            Instant createdAt,
+            Instant updatedAt
     ) {
-        /** Factory: converte entidade → DTO de resposta. */
-        public static Response from(Produto p) {
+        public static Response from(Produto produto) {
             return new Response(
-                p.getId(),
-                p.getNome(),
-                p.getPreco(),
-                p.getDescricao(),
-                p.isDisponivel(),
-                p.getImg(),
-                p.getCategoria(),
-                p.getTags(),
-                p.getCreatedAt(),
-                p.getUpdatedAt()
-            );
+                    produto.getId(),
+                    produto.getNome(),
+                    produto.getSlug(),
+                    produto.getPreco(),
+                    produto.getDescricao(),
+                    produto.isDisponivel(),
+                    produto.getImg(),
+                    produto.getCategoria(),
+                    produto.getTags(),
+                    produto.getCreatedAt(),
+                    produto.getUpdatedAt());
         }
     }
 
-    // ── PATCH (atualização parcial) ───────────────────────────────────────────
-
     public record PatchDisponibilidade(
-        @NotNull boolean isDisponivel
-    ) {}
+            @NotNull boolean isDisponivel
+    ) {
+    }
 }

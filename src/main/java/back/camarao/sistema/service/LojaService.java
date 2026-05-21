@@ -46,7 +46,7 @@ public class LojaService {
                 .aberto(dto.aberto())
                 .logoUrl(dto.logoUrl().trim())
                 .taxaServico(dto.taxaServico())
-                .taxaEntrega(dto.taxaEntrega())
+                .valorEntregaPorKm(dto.valorEntregaPorKm())
                 .horarioFuncionamento(dto.horarioFuncionamento())
                 .build();
 
@@ -70,7 +70,7 @@ public class LojaService {
         existente.setAberto(dto.aberto());
         existente.setLogoUrl(dto.logoUrl().trim());
         existente.setTaxaServico(dto.taxaServico());
-        existente.setTaxaEntrega(dto.taxaEntrega());
+        existente.setValorEntregaPorKm(dto.valorEntregaPorKm());
         existente.setHorarioFuncionamento(dto.horarioFuncionamento());
 
         Loja atualizada = lojaRepository.save(existente);
@@ -93,5 +93,10 @@ public class LojaService {
     public Loja encontrarOuLancar(String id) {
         return lojaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Loja", id));
+    }
+    public LojaDTO.LojaResponse fecharLoja(String id) {
+        Loja loja = encontrarOuLancar(id);
+        loja.setAberto(false);
+        return LojaDTO.LojaResponse.from(lojaRepository.save(loja));
     }
 }

@@ -1,7 +1,6 @@
 package back.camarao.sistema.model;
 
 import back.camarao.sistema.enums.StatusPedido;
-import back.camarao.sistema.enums.StatusPagamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -33,12 +33,18 @@ public class Pedido {
     @Field("loja_id")
     private String lojaId;
 
+<<<<<<< HEAD
     @Field("usuario_id")
     private String usuarioId;
 
     @Indexed(unique = true, sparse = true)
     @Field("access_slug")
     private String accessSlug;
+=======
+    @Indexed(unique = true)
+    @Field("codigo")
+    private String codigo;
+>>>>>>> 5f56ce829bc12a91f2d6f4314131ed60cf49bd31
 
     @Field("nome_cliente")
     private String nomeCliente;
@@ -48,6 +54,30 @@ public class Pedido {
 
     @Field("endereco_entrega")
     private String enderecoEntrega;
+
+    @Field("cep_entrega")
+    private String cepEntrega;
+
+    @Field("rua_entrega")
+    private String ruaEntrega;
+
+    @Field("numero_entrega")
+    private String numeroEntrega;
+
+    @Field("bairro_entrega")
+    private String bairroEntrega;
+
+    @Field("complemento_entrega")
+    private String complementoEntrega;
+
+    @Field("referencia_entrega")
+    private String referenciaEntrega;
+
+    @Field("metodo_pagamento")
+    private String metodoPagamento;
+
+    @Field(value = "troco_para", targetType = FieldType.DECIMAL128)
+    private BigDecimal trocoPara;
 
     @Field("observacao")
     private String observacao;
@@ -70,8 +100,11 @@ public class Pedido {
     @Field("status")
     private StatusPedido status;
 
-    @Field("status_pagamento") 
-    private StatusPagamento statusPagamento;
+    @Field("status_atualizado_em")
+    private Instant statusAtualizadoEm;
+
+    @Field("historico_status")
+    private List<StatusHistoricoPedido> historicoStatus;
 
     @CreatedDate
     @Field("created_at")

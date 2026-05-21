@@ -1,7 +1,8 @@
 package back.camarao.sistema.dto;
 
-import back.camarao.sistema.features.HorarioFuncionamento;
+import back.camarao.sistema.model.HorarioFuncionamento;
 import back.camarao.sistema.model.Loja;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -49,10 +50,11 @@ public final class LojaDTO {
             @Digits(integer = 8, fraction = 2, message = "Taxa de servico deve ter no maximo 8 digitos inteiros e 2 decimais")
             BigDecimal taxaServico,
 
-            @NotNull(message = "A taxa de entrega e obrigatoria")
-            @DecimalMin(value = "0.00", message = "Taxa de entrega nao pode ser negativa")
-            @Digits(integer = 8, fraction = 2, message = "Taxa de entrega deve ter no maximo 8 digitos inteiros e 2 decimais")
-            BigDecimal taxaEntrega,
+            @NotNull(message = "O valor de entrega por km e obrigatorio")
+            @DecimalMin(value = "0.00", message = "Valor de entrega por km nao pode ser negativo")
+            @Digits(integer = 8, fraction = 2, message = "Valor de entrega por km deve ter no maximo 8 digitos inteiros e 2 decimais")
+            @JsonAlias({"taxaEntrega", "valorPorKm"})
+            BigDecimal valorEntregaPorKm,
 
             @Valid
             @NotEmpty(message = "O horario de funcionamento e obrigatorio")
@@ -76,6 +78,7 @@ public final class LojaDTO {
             String logoUrl,
             BigDecimal taxaServico,
             BigDecimal taxaEntrega,
+            BigDecimal valorEntregaPorKm,
             List<HorarioFuncionamento> horarioFuncionamento,
             Instant createdAt,
             Instant updatedAt
@@ -90,7 +93,8 @@ public final class LojaDTO {
                     loja.getAberto(),
                     loja.getLogoUrl(),
                     loja.getTaxaServico(),
-                    loja.getTaxaEntrega(),
+                    loja.getValorEntregaPorKm(),
+                    loja.getValorEntregaPorKm(),
                     loja.getHorarioFuncionamento(),
                     loja.getCreatedAt(),
                     loja.getUpdatedAt());

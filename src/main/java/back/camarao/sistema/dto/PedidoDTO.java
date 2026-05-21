@@ -1,8 +1,10 @@
 package back.camarao.sistema.dto;
 
 import back.camarao.sistema.enums.StatusPedido;
+import back.camarao.sistema.integration.cep.CepService;
 import back.camarao.sistema.model.ItemPedido;
 import back.camarao.sistema.model.Pedido;
+import back.camarao.sistema.model.StatusHistoricoPedido;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -42,9 +44,11 @@ public final class PedidoDTO {
             @Pattern(regexp = "^\\+?[0-9 ()-]{10,20}$", message = "Telefone deve conter entre 10 e 20 caracteres validos")
             String telefoneCliente,
 
-            @NotBlank(message = "O endereco de entrega e obrigatorio")
-            @Size(max = 300, message = "Endereco deve ter no maximo 300 caracteres")
             String enderecoEntrega,
+
+            EnderecoEntregaRequest endereco,
+
+            PagamentoRequest pagamento,
 
             @Size(max = 500, message = "Observacao deve ter no maximo 500 caracteres")
             String observacao,
@@ -55,9 +59,61 @@ public final class PedidoDTO {
     ) {
     }
 
+    public record EnderecoEntregaRequest(
+            @Pattern(regexp = "^\\d{5}-?\\d{3}$", message = "CEP deve conter 8 digitos")
+            String cep,
+
+            String rua,
+            String numero,
+            String bairro,
+            String complemento,
+            String referencia,
+            Boolean semCep
+    ) {
+    }
+
+    public record PagamentoRequest(
+            @NotBlank(message = "A forma de pagamento e obrigatoria")
+            String metodo,
+
+            BigDecimal trocoPara
+    ) {
+    }
+
     public record PatchStatus(
             @NotNull(message = "O status do pedido e obrigatorio")
-            StatusPedido status
+            StatusPedido status,
+
+            @Size(max = 300, message = "Observacao de status deve ter no maximo 300 caracteres")
+            String observacao
+    ) {
+    }
+
+    public record CepResponse(
+            String cep,
+            String logradouro,
+            String complemento,
+            String bairro,
+            String cidade,
+            String estado
+    ) {
+        public static CepResponse from(CepService.Endereco endereco) {
+            return new CepResponse(
+                    endereco.cep(),
+                    endereco.logradouro(),
+                    endereco.complemento(),
+                    endereco.bairro(),
+                    endereco.localidade(),
+                    endereco.uf());
+        }
+    }
+
+    public record FreteResponse(
+            String cep,
+            String enderecoEntrega,
+            BigDecimal distanciaKm,
+            BigDecimal valorPorKm,
+            BigDecimal taxaEntrega
     ) {
     }
 
@@ -80,11 +136,15 @@ public final class PedidoDTO {
 
     public record Response(
             String id,
+            String codigo,
             String lojaId,
             String accessSlug,
             String nomeCliente,
             String telefoneCliente,
             String enderecoEntrega,
+            EnderecoEntregaResponse endereco,
+            String metodoPagamento,
+            BigDecimal trocoPara,
             String observacao,
             List<ItemResponse> itens,
             BigDecimal subtotal,
@@ -92,17 +152,24 @@ public final class PedidoDTO {
             BigDecimal taxaEntrega,
             BigDecimal total,
             StatusPedido status,
+            String statusLabel,
+            Instant statusAtualizadoEm,
+            List<StatusHistoricoResponse> historicoStatus,
             Instant createdAt,
             Instant updatedAt
     ) {
         public static Response from(Pedido pedido) {
             return new Response(
                     pedido.getId(),
+                    pedido.getCodigo(),
                     pedido.getLojaId(),
                     pedido.getAccessSlug(),
                     pedido.getNomeCliente(),
                     pedido.getTelefoneCliente(),
                     pedido.getEnderecoEntrega(),
+                    EnderecoEntregaResponse.from(pedido),
+                    pedido.getMetodoPagamento(),
+                    pedido.getTrocoPara(),
                     pedido.getObservacao(),
                     pedido.getItens().stream().map(ItemResponse::from).toList(),
                     pedido.getSubtotal(),
@@ -110,8 +177,61 @@ public final class PedidoDTO {
                     pedido.getTaxaEntrega(),
                     pedido.getTotal(),
                     pedido.getStatus(),
+                    formatStatusLabel(pedido.getStatus()),
+                    pedido.getStatusAtualizadoEm(),
+                    pedido.getHistoricoStatus() == null
+                            ? List.of()
+                            : pedido.getHistoricoStatus().stream().map(StatusHistoricoResponse::from).toList(),
                     pedido.getCreatedAt(),
                     pedido.getUpdatedAt());
         }
+    }
+
+    public record StatusHistoricoResponse(
+            StatusPedido status,
+            String statusLabel,
+            Instant alteradoEm,
+            String observacao
+    ) {
+        public static StatusHistoricoResponse from(StatusHistoricoPedido historico) {
+            return new StatusHistoricoResponse(
+                    historico.getStatus(),
+                    formatStatusLabel(historico.getStatus()),
+                    historico.getAlteradoEm(),
+                    historico.getObservacao());
+        }
+    }
+
+    public record EnderecoEntregaResponse(
+            String cep,
+            String rua,
+            String numero,
+            String bairro,
+            String complemento,
+            String referencia
+    ) {
+        public static EnderecoEntregaResponse from(Pedido pedido) {
+            return new EnderecoEntregaResponse(
+                    pedido.getCepEntrega(),
+                    pedido.getRuaEntrega(),
+                    pedido.getNumeroEntrega(),
+                    pedido.getBairroEntrega(),
+                    pedido.getComplementoEntrega(),
+                    pedido.getReferenciaEntrega());
+        }
+    }
+
+    private static String formatStatusLabel(StatusPedido status) {
+        if (status == null) {
+            return "Status nao informado";
+        }
+
+        return switch (status) {
+            case RECEBIDO -> "Pedido recebido";
+            case EM_PREPARO -> "Em preparo";
+            case SAIU_PARA_ENTREGA -> "Saiu para entrega";
+            case ENTREGUE -> "Entregue";
+            case CANCELADO -> "Cancelado";
+        };
     }
 }

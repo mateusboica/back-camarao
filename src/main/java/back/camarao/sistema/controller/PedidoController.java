@@ -53,6 +53,7 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.listarTodos(pageable));
     }
 
+<<<<<<< HEAD
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/minha-conta")
     @Operation(summary = "Lista pedidos da conta autenticada")
@@ -74,6 +75,33 @@ public class PedidoController {
             @PathVariable String id,
             @RequestParam String telefone) {
         return ResponseEntity.ok(pedidoService.buscarPorIdETelefonePublico(id, telefone));
+=======
+    @GetMapping("/cep/{cep}")
+    @Operation(summary = "Busca endereco de entrega por CEP")
+    @ApiResponse(responseCode = "200", description = "Endereco encontrado")
+    @ApiResponse(responseCode = "409", description = "CEP invalido ou nao encontrado")
+    public ResponseEntity<PedidoDTO.CepResponse> buscarEnderecoPorCep(@PathVariable String cep) {
+        return ResponseEntity.ok(pedidoService.buscarEnderecoPorCep(cep));
+    }
+
+    @GetMapping("/frete")
+    @Operation(summary = "Calcula o frete por CEP")
+    @ApiResponse(responseCode = "200", description = "Frete calculado")
+    @ApiResponse(responseCode = "404", description = "Loja nao encontrada")
+    @ApiResponse(responseCode = "409", description = "CEP invalido ou frete indisponivel")
+    public ResponseEntity<PedidoDTO.FreteResponse> calcularFrete(
+            @RequestParam String lojaId,
+            @RequestParam String cep) {
+        return ResponseEntity.ok(pedidoService.calcularFrete(lojaId, cep));
+    }
+
+    @GetMapping("/acompanhamento/{codigo}")
+    @Operation(summary = "Acompanha um pedido por codigo e telefone")
+    public ResponseEntity<PedidoDTO.Response> acompanharPorCodigo(
+            @PathVariable String codigo,
+            @RequestParam String telefone) {
+        return ResponseEntity.ok(pedidoService.acompanharPorCodigo(codigo, telefone));
+>>>>>>> 5f56ce829bc12a91f2d6f4314131ed60cf49bd31
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -106,7 +134,7 @@ public class PedidoController {
     public ResponseEntity<PedidoDTO.Response> alterarStatus(
             @PathVariable String id,
             @Valid @RequestBody PedidoDTO.PatchStatus dto) {
-        return ResponseEntity.ok(pedidoService.alterarStatus(id, dto.status()));
+        return ResponseEntity.ok(pedidoService.alterarStatus(id, dto.status(), dto.observacao()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

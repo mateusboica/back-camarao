@@ -1,6 +1,6 @@
 package back.camarao.sistema.security;
 
-import back.camarao.sistema.model.User;
+import back.camarao.sistema.model.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -36,12 +36,12 @@ public class TokenService {
         this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(User user) {
+    public String generateToken(Usuario usuario) {
         Instant now = Instant.now();
 
         return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("role", user.getAcesso())
+                .subject(usuario.getEmail())
+                .claim("role", usuario.getAcesso())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(expirationMs)))
                 .signWith(secretKey)

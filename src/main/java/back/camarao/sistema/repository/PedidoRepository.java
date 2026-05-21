@@ -16,9 +16,15 @@ public interface PedidoRepository extends MongoRepository<Pedido, String> {
 
     Page<Pedido> findByStatus(StatusPedido status, Pageable pageable);
 
+<<<<<<< HEAD
     Page<Pedido> findByUsuarioId(String usuarioId, Pageable pageable);
 
     Optional<Pedido> findByAccessSlug(String accessSlug);
 
     boolean existsByAccessSlug(String accessSlug);
+=======
+    Optional<Pedido> findByCodigo(String codigo);
+
+    boolean existsByCodigo(String codigo);
+>>>>>>> 5f56ce829bc12a91f2d6f4314131ed60cf49bd31
 }

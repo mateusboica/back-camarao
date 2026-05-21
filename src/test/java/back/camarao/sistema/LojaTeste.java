@@ -1,7 +1,7 @@
 package back.camarao.sistema;
 
 import back.camarao.sistema.dto.LojaDTO;
-import back.camarao.sistema.features.HorarioFuncionamento;
+import back.camarao.sistema.model.HorarioFuncionamento;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;

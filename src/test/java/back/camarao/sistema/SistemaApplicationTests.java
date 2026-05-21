@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 		"spring.mongodb.uri=mongodb://localhost:27017/test",
 		"app.security.jwt.secret=01234567890123456789012345678901",
 		"app.security.jwt.expiration-ms=3600000",
-		"app.cors.allowed-origin-patterns=*"
+		"app.cors.allowed-origin-patterns=*",
+		"google.maps.api-key=test-key"
 })
 class SistemaApplicationTests {
 

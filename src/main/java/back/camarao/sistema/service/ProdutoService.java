@@ -12,6 +12,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,22 +24,23 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
 
-    // ── Listagens ─────────────────────────────────────────────────────────────
-
     public Page<ProdutoDTO.Response> listarTodos(Pageable pageable) {
-        log.debug("Listando todos os produtos – página {}", pageable.getPageNumber());
+        log.debug("Listando produtos: pagina={}", pageable.getPageNumber());
         return produtoRepository.findAll(pageable).map(ProdutoDTO.Response::from);
     }
 
     public Page<ProdutoDTO.Response> listarDisponiveis(Pageable pageable) {
-        return produtoRepository.findByIsDisponivelTrue(pageable).map(ProdutoDTO.Response::from);
+        return produtoRepository.findByDisponivelTrue(pageable).map(ProdutoDTO.Response::from);
     }
 
-    public Page<ProdutoDTO.Response> listarPorCategoria(Categoria categoria, boolean somenteDisponiveis,
+    public Page<ProdutoDTO.Response> listarPorCategoria(
+            Categoria categoria,
+            boolean somenteDisponiveis,
             Pageable pageable) {
         Page<Produto> page = somenteDisponiveis
-                ? produtoRepository.findByCategoriaAndIsDisponivelTrue(categoria, pageable)
+                ? produtoRepository.findByCategoriaAndDisponivelTrue(categoria, pageable)
                 : produtoRepository.findByCategoria(categoria, pageable);
+
         return page.map(ProdutoDTO.Response::from);
     }
 
@@ -54,8 +60,6 @@ public class ProdutoService {
         return ProdutoDTO.Response.from(produto);
     }
 
-    // ── CRUD ──────────────────────────────────────────────────────────────────
-
     public ProdutoDTO.Response buscarPorId(String id) {
         return ProdutoDTO.Response.from(encontrarOuLancar(id));
     }
@@ -63,30 +67,18 @@ public class ProdutoService {
     public ProdutoDTO.Response criar(ProdutoDTO.Request dto) {
         if (produtoRepository.existsByNomeIgnoreCase(dto.nome())) {
             throw new ResourceAlreadyExistsException(
-                    "Já existe um produto com o nome '%s'".formatted(dto.nome()));
+                    "Ja existe um produto com o nome '%s'".formatted(dto.nome()));
         }
-
-        String slug = dto.nome()
-                .toLowerCase()
-                .trim()
-                .replaceAll("[áàãâä]", "a")
-                .replaceAll("[éèêë]", "e")
-                .replaceAll("[íìîï]", "i")
-                .replaceAll("[óòõôö]", "o")
-                .replaceAll("[úùûü]", "u")
-                .replaceAll("[ç]", "c")
-                .replaceAll("[^a-z0-9\\s-]", "")
-                .replaceAll("\\s+", "-");
 
         Produto produto = Produto.builder()
                 .nome(dto.nome().trim())
-                .slug(slug)
+                .slug(gerarSlug(dto.nome()))
                 .preco(dto.preco())
                 .descricao(dto.descricao().trim())
-                .isDisponivel(dto.isDisponivel())
-                .img(dto.img())
+                .disponivel(dto.isDisponivel())
+                .img(dto.img().trim())
                 .categoria(dto.categoria())
-                .tags(dto.tags())
+                .tags(normalizarTags(dto.tags()))
                 .build();
 
         Produto salvo = produtoRepository.save(produto);
@@ -97,18 +89,20 @@ public class ProdutoService {
     public ProdutoDTO.Response atualizar(String id, ProdutoDTO.Request dto) {
         Produto existente = encontrarOuLancar(id);
         boolean nomeMudou = !existente.getNome().equalsIgnoreCase(dto.nome().trim());
+
         if (nomeMudou && produtoRepository.existsByNomeIgnoreCase(dto.nome())) {
             throw new ResourceAlreadyExistsException(
-                    "Já existe outro produto com o nome '%s'".formatted(dto.nome()));
+                    "Ja existe outro produto com o nome '%s'".formatted(dto.nome()));
         }
 
         existente.setNome(dto.nome().trim());
+        existente.setSlug(gerarSlug(dto.nome()));
         existente.setPreco(dto.preco());
         existente.setDescricao(dto.descricao().trim());
         existente.setDisponivel(dto.isDisponivel());
-        existente.setImg(dto.img());
+        existente.setImg(dto.img().trim());
         existente.setCategoria(dto.categoria());
-        existente.setTags(dto.tags());
+        existente.setTags(normalizarTags(dto.tags()));
 
         Produto atualizado = produtoRepository.save(existente);
         log.info("Produto atualizado: id={}", id);
@@ -130,5 +124,28 @@ public class ProdutoService {
     public Produto encontrarOuLancar(String id) {
         return produtoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto", id));
+    }
+
+    private String gerarSlug(String nome) {
+        String semAcentos = Normalizer.normalize(nome.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+
+        return semAcentos.toLowerCase()
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("\\s+", "-")
+                .replaceAll("(^-|-$)", "");
+    }
+
+    private List<String> normalizarTags(List<String> tags) {
+        if (tags == null) {
+            return List.of();
+        }
+
+        return tags.stream()
+                .filter(Objects::nonNull)
+                .map(tag -> tag.trim().replaceAll(",", "").replaceAll("\\s+", "_").toLowerCase(Locale.ROOT))
+                .filter(tag -> !tag.isBlank())
+                .distinct()
+                .toList();
     }
 }

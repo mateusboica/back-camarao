@@ -1,13 +1,10 @@
 package back.camarao.sistema.controller;
 
-import java.net.URI;
-
 import back.camarao.sistema.dto.AuthDTO;
-import back.camarao.sistema.dto.UserDTO;
-import back.camarao.sistema.service.UserService;
+import back.camarao.sistema.dto.UsuarioDTO;
+import back.camarao.sistema.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,74 +15,78 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
+
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final UsuarioService usuarioService;
 
-    // POST /api/v1/auth/register e /register
     @PostMapping({"/api/v1/auth/register", "/register"})
-    public ResponseEntity<UserDTO.Response> register(@Valid @RequestBody UserDTO.CreateRequest dto) {
-        UserDTO.Response criado = userService.cadastrar(dto);
+    public ResponseEntity<UsuarioDTO.Response> register(@Valid @RequestBody UsuarioDTO.CreateRequest dto) {
+        UsuarioDTO.Response criado = usuarioService.cadastrar(dto);
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/v1/auth/me")
-                .build().toUri();
+                .build()
+                .toUri();
+
         return ResponseEntity.created(location).body(criado);
     }
 
-    // POST /api/v1/auth/login e /login
     @PostMapping({"/api/v1/auth/login", "/login"})
     public ResponseEntity<AuthDTO.LoginResponse> login(@Valid @RequestBody AuthDTO.LoginRequest dto) {
-        UserService.LoginResult result = userService.login(dto);
+        UsuarioService.LoginResult result = usuarioService.login(dto);
+
         return ResponseEntity.ok()
                 .header("Set-Cookie", buildAuthCookie(result.token()).toString())
                 .body(result.response());
     }
 
-    // GET /api/v1/auth/me e /me
     @GetMapping({"/api/v1/auth/me", "/me"})
-    public ResponseEntity<UserDTO.Response> me(@AuthenticationPrincipal(expression = "username") String email) {
-        return ResponseEntity.ok(userService.buscarPorEmail(email));
+    public ResponseEntity<UsuarioDTO.Response> me(
+            @AuthenticationPrincipal(expression = "username") String email) {
+        return ResponseEntity.ok(usuarioService.buscarPorEmail(email));
     }
 
-    // PATCH /api/v1/auth/me e /me
     @PatchMapping({"/api/v1/auth/me", "/me"})
     public ResponseEntity<AuthDTO.LoginResponse> atualizarPerfil(
             @AuthenticationPrincipal(expression = "username") String email,
-            @Valid @RequestBody UserDTO.UpdateProfileRequest dto) {
-        UserService.LoginResult result = userService.atualizarPerfil(email, dto);
+            @Valid @RequestBody UsuarioDTO.UpdateProfileRequest dto) {
+        UsuarioService.LoginResult result = usuarioService.atualizarPerfil(email, dto);
+
         return ResponseEntity.ok()
                 .header("Set-Cookie", buildAuthCookie(result.token()).toString())
                 .body(result.response());
     }
 
-    // PATCH /api/v1/auth/me/senha e /me/senha
     @PatchMapping({"/api/v1/auth/me/senha", "/me/senha"})
     public ResponseEntity<Void> alterarSenha(
             @AuthenticationPrincipal(expression = "username") String email,
-            @Valid @RequestBody UserDTO.UpdatePasswordRequest dto) {
-        userService.alterarSenha(email, dto);
+            @Valid @RequestBody UsuarioDTO.UpdatePasswordRequest dto) {
+        usuarioService.alterarSenha(email, dto);
         return ResponseEntity.noContent().build();
     }
 
-    // GET /api/v1/auth/logout e /logout
     @GetMapping({"/api/v1/auth/logout", "/logout"})
     public ResponseEntity<Void> logout() {
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(0) 
+                .maxAge(0)
                 .sameSite("None")
                 .build();
-        return ResponseEntity.noContent().header("Set-Cookie", cookie.toString()).build();
+
+        return ResponseEntity.noContent()
+                .header("Set-Cookie", cookie.toString())
+                .build();
     }
 
-    // GET /api/v1/auth/me-nome e /me-nome (apenas para retornar o nome do usuário autenticado)
     @GetMapping({"/api/v1/auth/me-nome", "/me-nome"})
-    public ResponseEntity<String> meNome(@AuthenticationPrincipal(expression = "username") String email) {
-        return ResponseEntity.ok(userService.buscarPorEmail(email).nome());
+    public ResponseEntity<String> meNome(
+            @AuthenticationPrincipal(expression = "username") String email) {
+        return ResponseEntity.ok(usuarioService.buscarPorEmail(email).nome());
     }
 
     private ResponseCookie buildAuthCookie(String token) {
@@ -93,7 +94,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 7 dias
+                .maxAge(7 * 24 * 60 * 60)
                 .sameSite("None")
                 .build();
     }

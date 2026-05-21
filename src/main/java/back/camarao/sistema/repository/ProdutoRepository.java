@@ -12,11 +12,11 @@ import java.util.Optional;
 @Repository
 public interface ProdutoRepository extends MongoRepository<Produto, String> {
 
-    Page<Produto> findByIsDisponivelTrue(Pageable pageable);
+    Page<Produto> findByDisponivelTrue(Pageable pageable);
 
     Page<Produto> findByCategoria(Categoria categoria, Pageable pageable);
 
-    Page<Produto> findByCategoriaAndIsDisponivelTrue(Categoria categoria, Pageable pageable);
+    Page<Produto> findByCategoriaAndDisponivelTrue(Categoria categoria, Pageable pageable);
 
     @Query("{ 'nome': { $regex: ?0, $options: 'i' } }")
     Page<Produto> findByNomeContainingIgnoreCase(String termo, Pageable pageable);

@@ -1,4 +1,4 @@
-package back.camarao.sistema.features;
+package back.camarao.sistema.model;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;

@@ -2,14 +2,14 @@ package back.camarao.sistema.dto;
 
 import java.time.Instant;
 
-import back.camarao.sistema.model.User;
+import back.camarao.sistema.model.Usuario;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public final class UserDTO {
-    private UserDTO() {
+public final class UsuarioDTO {
+    private UsuarioDTO() {
     }
 
     public record CreateRequest(
@@ -55,14 +55,14 @@ public final class UserDTO {
             String acesso,
             Instant createdAt,
             Instant updatedAt) {
-        public static Response from(User user) {
+        public static Response from(Usuario usuario) {
             return new Response(
-                    user.getId(),
-                    user.getNome(),
-                    user.getEmail(),
-                    user.getAcesso(),
-                    user.getCreatedAt(),
-                    user.getUpdatedAt());
+                    usuario.getId(),
+                    usuario.getNome(),
+                    usuario.getEmail(),
+                    usuario.getAcesso(),
+                    usuario.getCreatedAt(),
+                    usuario.getUpdatedAt());
         }
     }
 }

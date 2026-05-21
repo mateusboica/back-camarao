@@ -68,12 +68,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/pedidos", "/v1/pedidos").permitAll()
+<<<<<<< HEAD
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/publico/**", "/v1/pedidos/publico/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/minha-conta", "/v1/pedidos/minha-conta").authenticated()
+=======
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/cep/**", "/v1/pedidos/cep/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/frete", "/v1/pedidos/frete").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/acompanhamento/**", "/v1/pedidos/acompanhamento/**").permitAll()
+>>>>>>> 5f56ce829bc12a91f2d6f4314131ed60cf49bd31
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/maps", "/api/v1/maps/**", "/v1/maps", "/v1/maps/**").permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

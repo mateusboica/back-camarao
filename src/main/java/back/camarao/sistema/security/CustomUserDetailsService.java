@@ -1,6 +1,6 @@
 package back.camarao.sistema.security;
 
-import back.camarao.sistema.repository.UserRepository;
+import back.camarao.sistema.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmailIgnoreCase(username)
-                .map(AuthenticatedUser::new)
+        return usuarioRepository.findByEmailIgnoreCase(username)
+                .map(AuthenticatedUsuario::new)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario nao encontrado"));
     }
 }

@@ -1,6 +1,6 @@
 package back.camarao.sistema.dto;
 
-import back.camarao.sistema.model.User;
+import back.camarao.sistema.model.Usuario;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -27,12 +27,12 @@ public final class AuthDTO {
             String tipo,
             String token,
             String mensagem) {
-        public static LoginResponse from(User user, String token) {
+        public static LoginResponse from(Usuario usuario, String token) {
             return new LoginResponse(
-                    user.getId(),
-                    user.getNome(),
-                    user.getEmail(),
-                    user.getAcesso(),
+                    usuario.getId(),
+                    usuario.getNome(),
+                    usuario.getEmail(),
+                    usuario.getAcesso(),
                     "Bearer",
                     token,
                     "Login realizado com sucesso");
