@@ -7,10 +7,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface PedidoRepository extends MongoRepository<Pedido, String> {
 
     Page<Pedido> findByLojaId(String lojaId, Pageable pageable);
 
     Page<Pedido> findByStatus(StatusPedido status, Pageable pageable);
+
+    Page<Pedido> findByUsuarioId(String usuarioId, Pageable pageable);
+
+    Optional<Pedido> findByAccessSlug(String accessSlug);
+
+    boolean existsByAccessSlug(String accessSlug);
 }

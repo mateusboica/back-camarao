@@ -2,6 +2,7 @@ package back.camarao.sistema.controller;
 
 import back.camarao.sistema.dto.PedidoDTO;
 import back.camarao.sistema.enums.StatusPedido;
+import back.camarao.sistema.security.AuthenticatedUser;
 import back.camarao.sistema.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -51,6 +53,29 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.listarTodos(pageable));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/minha-conta")
+    @Operation(summary = "Lista pedidos da conta autenticada")
+    public ResponseEntity<Page<PedidoDTO.Response>> listarMinhaConta(
+            @AuthenticationPrincipal AuthenticatedUser usuario,
+            @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(pedidoService.listarPorUsuario(usuario.getUser().getId(), pageable));
+    }
+
+    @GetMapping("/publico/{accessSlug}")
+    @Operation(summary = "Busca pedido pelo identificador publico")
+    public ResponseEntity<PedidoDTO.Response> buscarPorSlugPublico(@PathVariable String accessSlug) {
+        return ResponseEntity.ok(pedidoService.buscarPorSlugPublico(accessSlug));
+    }
+
+    @GetMapping("/publico/local/{id}")
+    @Operation(summary = "Busca pedido sem login usando dados salvos no navegador")
+    public ResponseEntity<PedidoDTO.Response> buscarPorDadosLocais(
+            @PathVariable String id,
+            @RequestParam String telefone) {
+        return ResponseEntity.ok(pedidoService.buscarPorIdETelefonePublico(id, telefone));
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     @Operation(summary = "Busca pedido por ID")
@@ -63,8 +88,11 @@ public class PedidoController {
     @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso")
     @ApiResponse(responseCode = "409", description = "Loja fechada ou produto indisponivel")
     @ApiResponse(responseCode = "422", description = "Dados invalidos")
-    public ResponseEntity<PedidoDTO.Response> criar(@Valid @RequestBody PedidoDTO.Request dto) {
-        PedidoDTO.Response criado = pedidoService.criar(dto);
+    public ResponseEntity<PedidoDTO.Response> criar(
+            @AuthenticationPrincipal AuthenticatedUser usuario,
+            @Valid @RequestBody PedidoDTO.Request dto) {
+        String usuarioId = usuario == null ? null : usuario.getUser().getId();
+        PedidoDTO.Response criado = pedidoService.criar(dto, usuarioId);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(criado.id())

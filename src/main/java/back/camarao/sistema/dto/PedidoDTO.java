@@ -81,6 +81,7 @@ public final class PedidoDTO {
     public record Response(
             String id,
             String lojaId,
+            String accessSlug,
             String nomeCliente,
             String telefoneCliente,
             String enderecoEntrega,
@@ -98,6 +99,7 @@ public final class PedidoDTO {
             return new Response(
                     pedido.getId(),
                     pedido.getLojaId(),
+                    pedido.getAccessSlug(),
                     pedido.getNomeCliente(),
                     pedido.getTelefoneCliente(),
                     pedido.getEnderecoEntrega(),

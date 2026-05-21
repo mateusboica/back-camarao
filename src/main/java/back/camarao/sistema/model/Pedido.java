@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -31,6 +32,13 @@ public class Pedido {
 
     @Field("loja_id")
     private String lojaId;
+
+    @Field("usuario_id")
+    private String usuarioId;
+
+    @Indexed(unique = true, sparse = true)
+    @Field("access_slug")
+    private String accessSlug;
 
     @Field("nome_cliente")
     private String nomeCliente;

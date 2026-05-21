@@ -68,6 +68,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/lojas", "/api/v1/lojas/**", "/v1/lojas", "/v1/lojas/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/pedidos", "/v1/pedidos").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/publico/**", "/v1/pedidos/publico/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/minha-conta", "/v1/pedidos/minha-conta").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/pedidos", "/api/v1/pedidos/**", "/v1/pedidos", "/v1/pedidos/**").hasRole("ADMIN")
